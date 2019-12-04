@@ -2,13 +2,18 @@
 
 set -euo pipefail
 
-NAME="$0"
+SCRIPT_LIB_ROOT="$(readlink -f "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/..")/lib"
+source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+
+require util
+
 USER_CONFIG_FILE="${XDG_CONFIG_PATH:-"${HOME}/.config"}/nickname"
 GLOBAL_CONFIG_FILE="/etc/nickname"
 
+
 usage () {
 echo "\
-Usage: $(basename "${NAME}") [OPTION...]
+Usage: $(script-name) [OPTION...]
 Show a nickname (not valid in the network) for the machine, or the hostname.
 
 To configure the output for your user write the nickname to "${USER_CONFIG_FILE}".

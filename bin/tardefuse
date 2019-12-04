@@ -1,0 +1,103 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_LIB_ROOT="$(readlink -f "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/..")/lib"
+source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+
+require ui
+require util
+
+
+usage () {
+echo "\
+Usage: $(script-name) [OPTION...]
+Defuse a tarbomb: create a directory for its contents if it contains more than
+one directory or file at top level.
+
+Optional arguments:
+    -h/--help     Print this help message and exit."
+}
+
+
+tar-basename() {
+    # Get the name of a .tar.* file without the suffix.
+
+    local fullpath="${1}"
+
+    basename "${fullpath}" | sed s/.tar.*$//g
+}
+
+
+is-tarbomb() {
+    # Check if a tar file is a tarbomb.
+    # A tar file is a bomb if its contents don't have a directory as a unique
+    # prefix.
+
+    local fullpath="${1}"
+
+    local nprefixes
+    nprefixes="$(
+        tar -tf "${fullpath}" |  # List file contents
+        sed -e 's/\/.*$//' |  # Get directory prefixes (first thing up to a /)
+        sort | uniq | wc -l  # Get the number of unique ones.
+    )" &&
+
+    echo $((${nprefixes} > 1))
+}
+
+
+get-output-directory() {
+    # Get the output directory name to extract a tar file.
+    # If it is not a bomb. It will be the same directory we are in.
+    # If it is a bomb. It will be a directory named after its basename.
+
+    local fullpath="${1}"
+
+    local is_bomb="$(is-tarbomb "${fullpath}")" &&
+
+    ([[ "${is_bomb}" == 0 ]] || print-info "File '${fullpath}' is a tarbomb") &&
+
+    choose "${is_bomb}" "./$(tar-basename "${fullpath}")" "."
+}
+
+
+tardefuse() {
+    local fullpath
+    fullpath="$(readlink -f $1)"
+
+    [[ -f "${fullpath}" ]] || die "File "${fullpath}" not found."
+
+    local output_dir
+    output_dir="$(get-output-directory "${fullpath}")"
+
+    mkdir -p "${output_dir}" &&
+    tar -xvf "${fullpath}" -C "${output_dir}"
+}
+
+
+main() {
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    local tar_file="${1:-}"
+
+    [[ -n "${tar_file}" ]] || die-usage "Missing a file to extract."
+
+    tardefuse "${tar_file}"
+}
+
+
+main "$@"
