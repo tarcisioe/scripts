@@ -1,0 +1,96 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_LIB_ROOT="$(readlink -f "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/..")/lib"
+source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+
+require util
+
+OUTPUT="/tmp/output.mp4"
+PIDFILE="/tmp/vshot.pid"
+
+
+usage () {
+echo "\
+Usage: $(script-name) [OPTION...]
+Record a window or a selected portion of a screen and send result to clipboard.
+
+Optional arguments:
+    -h/--help    Print this help message and exit.
+    -a/--audio   Capture audio."
+}
+
+
+stop-capture-if-active() {
+    [[ ! -f "${PIDFILE}" ]] && return 1
+
+    kill $(<"${PIDFILE}") &&
+        notify-send ' ' "Done capturing." ||
+        notify-send ' ' "Couldn't stop capture."
+    rm "${PIDFILE}" &&
+
+    xclip -sel c -t text/uri-list <<< "file://${OUTPUT}"
+}
+
+
+start-record() {
+    local audio="${1}"
+    local x="${2}"
+    local y="${3}"
+    local w="${4}"
+    local h="${5}"
+    local g="${6}"
+
+    local audio_flag="$(choose "${audio}" "-f pulse -ac 2 -i default" "")"
+
+    ffmpeg -y -video_size "$(($w-1))x$(($h-1))" \
+           -framerate 25 -f x11grab \
+           -i :0.0+"${x}","${y}" \
+           ${audio_flag} \
+           -vf 'scale=trunc(iw/2)*2:-2' \
+           -pix_fmt yuv420p \
+           ${OUTPUT} &
+    echo "${!}" >> "${PIDFILE}"
+}
+
+
+recordwindow() {
+    local audio="${1}"
+
+    stop-capture-if-active && return
+
+    local x y w h g
+    read -r x y w h g <<< "$(slop -f "%x %y %w %h %g")" &&
+
+    start-record "${audio}" "${x}" "${y}" "${w}" "${h}" "${g}"
+}
+
+
+main() {
+    local audio=0
+
+    local options
+    options=$(getopt -o ha -l audio -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            -a|--audio)
+                audio=1
+                ;;
+            *)
+                break
+                ;;
+        esac
+        shift
+    done
+
+    recordwindow "${audio}"
+}
+
+
+main "$@"

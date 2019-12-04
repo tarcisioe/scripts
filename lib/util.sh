@@ -1,3 +1,11 @@
+script-name() {
+    # Get the name of the outermost script calling this function.
+    # Usually useful for usages.
+
+    echo "$(basename "${BASH_SOURCE[-1]}")"
+}
+
+
 choose() {
     # Choose a value based on a flag (a ternary if operator).
     #

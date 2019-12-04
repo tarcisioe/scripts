@@ -2,17 +2,17 @@
 
 set -euo pipefail
 
-SCRIPT_LIB_ROOT="$(readlink -f "$(cd "$(dirname "$0")" && pwd)/..")/lib"
+SCRIPT_LIB_ROOT="$(readlink -f "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/..")/lib"
 source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
 
 require util
 
-NAME="$(basename "${0}")"
 SSHOT_DIR="${HOME}/.screenshots"
+
 
 usage () {
 echo "\
-Usage: $(basename "${NAME}") [OPTION...]
+Usage: $(script-name) [OPTION...]
 Take a screenshot and either save it or copy it to clipboard.
 
 Optional arguments:
