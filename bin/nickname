@@ -1,0 +1,49 @@
+#!/bin/bash
+
+set -euo pipefail
+
+NAME="$0"
+USER_CONFIG_FILE="${XDG_CONFIG_PATH:-"${HOME}/.config"}/nickname"
+GLOBAL_CONFIG_FILE="/etc/nickname"
+
+usage () {
+echo "\
+Usage: $(basename "${NAME}") [OPTION...]
+Show a nickname (not valid in the network) for the machine, or the hostname.
+
+To configure the output for your user write the nickname to "${USER_CONFIG_FILE}".
+To configure the output globally write the nickname to "${GLOBAL_CONFIG_FILE}".
+
+Optional arguments:
+    -h/--help     Print this help message and exit."
+}
+
+
+nickname() {
+    cat "${USER_CONFIG_FILE}" 2> /dev/null ||
+    cat "${GLOBAL_CONFIG_FILE}" 2> /dev/null ||
+    hostname
+}
+
+
+main() {
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            *)
+                break
+                ;;
+        esac
+        shift
+    done
+
+    nickname
+}
+
+main "$@"
