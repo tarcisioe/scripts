@@ -1,0 +1,112 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_LIB_ROOT="$(readlink -f "$(cd "$(dirname "$0")" && pwd)/..")/lib"
+source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+
+require util
+
+NAME="$(basename "${0}")"
+SSHOT_DIR="${HOME}/.screenshots"
+
+usage () {
+echo "\
+Usage: $(basename "${NAME}") [OPTION...]
+Take a screenshot and either save it or copy it to clipboard.
+
+Optional arguments:
+    -h/--help        Print this help message and exit.
+    -s/--select      Enable region selection.
+    -c/--clipboard   Copy screenshot to clipboard."
+}
+
+
+get-save-path() {
+    local filename
+    filename="$(dmenu -p "Filename (.png)" < /dev/null)"
+
+    echo "${SSHOT_DIR}/${filename}.png"
+}
+
+
+save() {
+    local tmpfile="${1}"
+
+    mkdir -p "${SSHOT_DIR}"
+
+    local path
+    path="$(get-save-path)"
+
+    cp "${tmpfile}" "${path}"
+}
+
+
+copy-to-clipboard() {
+    xclip -t image/png "${1}" -selection clipboard &&
+    xclip -t image/png "${1}"
+}
+
+
+save-or-clip() {
+    local clip="${1}"
+    local tmpfile="${2}"
+
+    if [[ "${clip}" == 1 ]]
+    then
+        copy-to-clipboard "${tmpfile}"
+    else
+        save "${tmpfile}"
+    fi
+
+    rm "${tmpfile}"
+}
+
+
+sshot() {
+    local select="${1}"
+    local clipboard="${2}"
+
+    local select_flag="$(choose "${select}" "-s" "")"
+
+    local tmp
+    tmp="$(mktemp --suffix=.png)"
+
+    maim -ou ${select_flag} "${tmp}" &&
+    save-or-clip "${clipboard}" "${tmp}"
+}
+
+
+main() (
+    set -euo pipefail
+
+    local select=0;
+    local clipboard=0;
+
+    local options
+    options=$(getopt -o hsc -l help,select,clipboard -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            -s|--select)
+                select=1
+                ;;
+            -c|--clipboard)
+                clipboard=1
+                ;;
+            *)
+                break
+                ;;
+        esac
+        shift
+    done
+
+    sshot "${select}" "${clipboard}"
+)
+
+
+main "$@"
