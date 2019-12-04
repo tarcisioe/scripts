@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Usage: sensible-browser [BROWSER_FLAGS...]
+
+# Open a browser, the first found.
+# Prefers what is set by the BROWSER environment variable.
+# Useful for having a generic browser shortcut.
+
+# This command has no help flag because it is a transparent wrapper.
+
+set -eou pipefail
+
+SCRIPT_LIB_ROOT="$(readlink -f "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/..")/lib"
+source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+
+require path-util
+
+
+BROWSER="${BROWSER:-}"
+
+BROWSERS=(
+    $BROWSER
+    chromium
+    google-chrome
+    google-chrome-stable
+    firefox
+)
+
+main() {
+    local browser
+
+    for browser in "${BROWSERS[@]}"
+    do
+        if command-available "${browser}"
+        then
+            exec "${browser}" "$@"
+        fi
+    done
+}
+
+main "$@"
