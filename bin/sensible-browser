@@ -26,7 +26,9 @@ BROWSERS=(
     firefox
 )
 
-main() {
+main() (
+    set -e
+
     local browser
 
     for browser in "${BROWSERS[@]}"
@@ -36,6 +38,6 @@ main() {
             exec "${browser}" "$@"
         fi
     done
-}
+)
 
 main "$@"

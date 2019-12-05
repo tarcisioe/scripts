@@ -9,36 +9,49 @@ require ui
 require util
 
 
-usage () {
+usage() {
 echo "\
-Usage: $(script-name) [OPTION...]
-Defuse a tarbomb: create a directory for its contents if it contains more than
-one directory or file at top level.
+Usage: $(script-name) [OPTION...] [TAR_FILE]
+Defuse a possible tarbomb: create a directory for its contents if it contains
+more than one directory or file at top level.
 
 Optional arguments:
-    -h/--help     Print this help message and exit."
+    -h/--help     Print this help message and exit.
+
+Positional arguments:
+    TAR_FILE   Path to the suspected tarbomb."
 }
 
 
 tar-basename() {
     # Get the name of a .tar.* file without the suffix.
+    #
+    # Usage: tar-basename TAR_FILE
+    #
+    # Positional arguments:
+    #     TAR_FILE   Path to the .tar.* file.
 
-    local fullpath="${1}"
+    local tar_file="${1}"
 
-    basename "${fullpath}" | sed s/.tar.*$//g
+    basename "${tar_file}" | sed -e 's/.tar.*$//g'
 }
 
 
 is-tarbomb() {
-    # Check if a tar file is a tarbomb.
+    # Check if a tar.* file is a tarbomb.
     # A tar file is a bomb if its contents don't have a directory as a unique
     # prefix.
+    #
+    # Usage: is-tarbomb TAR_FILE
+    #
+    # Positional arguments:
+    #     TAR_FILE   Path to the .tar.* file.
 
-    local fullpath="${1}"
+    local tar_file="${1}"
 
     local nprefixes
     nprefixes="$(
-        tar -tf "${fullpath}" |  # List file contents
+        tar -tf "${tar_file}" |  # List file contents
         sed -e 's/\/.*$//' |  # Get directory prefixes (first thing up to a /)
         sort | uniq | wc -l  # Get the number of unique ones.
     )" &&
@@ -51,28 +64,40 @@ get-output-directory() {
     # Get the output directory name to extract a tar file.
     # If it is not a bomb. It will be the same directory we are in.
     # If it is a bomb. It will be a directory named after its basename.
+    #
+    # Usage: get=output-directory TAR_FILE
+    #
+    # Positional arguments:
+    #     TAR_FILE   Path to the .tar.* file.
 
-    local fullpath="${1}"
+    local tar_file="${1}"
 
-    local is_bomb="$(is-tarbomb "${fullpath}")" &&
+    local is_bomb="$(is-tarbomb "${tar_file}")" &&
 
-    ([[ "${is_bomb}" == 0 ]] || print-info "File '${fullpath}' is a tarbomb") &&
+    ([[ "${is_bomb}" == 0 ]] || print-info "File '${tar_file}' is a tarbomb") &&
 
-    choose "${is_bomb}" "./$(tar-basename "${fullpath}")" "."
+    choose "${is_bomb}" "./$(tar-basename "${tar_file}")" "."
 }
 
 
 tardefuse() {
-    local fullpath
-    fullpath="$(readlink -f $1)"
+    # Defuse a tarbomb.
+    #
+    # Usage: tardefuse TAR_FILE
+    #
+    # Positional arguments:
+    #     TAR_FILE   Path to the .tar.* file.
 
-    [[ -f "${fullpath}" ]] || die "File "${fullpath}" not found."
+    local tar_file
+    tar_file="$(readlink -f $1)"
+
+    [[ -f "${tar_file}" ]] || die "File "${tar_file}" not found."
 
     local output_dir
-    output_dir="$(get-output-directory "${fullpath}")"
+    output_dir="$(get-output-directory "${tar_file}")"
 
     mkdir -p "${output_dir}" &&
-    tar -xvf "${fullpath}" -C "${output_dir}"
+    tar -xvf "${tar_file}" -C "${output_dir}"
 }
 
 

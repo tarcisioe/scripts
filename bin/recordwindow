@@ -11,7 +11,7 @@ OUTPUT="/tmp/output.mp4"
 PIDFILE="/tmp/vshot.pid"
 
 
-usage () {
+usage() {
 echo "\
 Usage: $(script-name) [OPTION...]
 Record a window or a selected portion of a screen and send result to clipboard.
@@ -23,24 +23,36 @@ Optional arguments:
 
 
 stop-capture-if-active() {
+    # Stops capture if it is active.
+
     [[ ! -f "${PIDFILE}" ]] && return 1
 
-    kill $(<"${PIDFILE}") &&
+    (kill $(<"${PIDFILE}") &&
         notify-send ' ' "Done capturing." ||
-        notify-send ' ' "Couldn't stop capture."
+        notify-send ' ' "Couldn't stop capture.") &&
     rm "${PIDFILE}" &&
 
     xclip -sel c -t text/uri-list <<< "file://${OUTPUT}"
 }
 
 
-start-record() {
+start-record() (
+    # Starts capturing a region.
+    #
+    # Usage: start-record AUDIO X Y W H
+    #
+    # Positional arguments:
+    #     AUDIO     A 0/1 flag to record audio or not.
+    #     X Y H W   The x and y coordinates, height and width of a region of
+    #               the screen.
+
+    set -e
+
     local audio="${1}"
     local x="${2}"
     local y="${3}"
     local w="${4}"
     local h="${5}"
-    local g="${6}"
 
     local audio_flag="$(choose "${audio}" "-f pulse -ac 2 -i default" "")"
 
@@ -52,22 +64,33 @@ start-record() {
            -pix_fmt yuv420p \
            ${OUTPUT} &
     echo "${!}" >> "${PIDFILE}"
-}
+)
 
 
-recordwindow() {
+recordwindow() (
+    # Starts or stops capturing a region.
+    #
+    # Usage: recordwindow AUDIO
+    #
+    # Positional arguments:
+    #     AUDIO   A 0/1 flag to record audio or not.
+
+    set -e
+
     local audio="${1}"
 
     stop-capture-if-active && return
 
     local x y w h g
-    read -r x y w h g <<< "$(slop -f "%x %y %w %h %g")" &&
+    read -r x y w h g <<< "$(slop -f "%x %y %w %h")" &&
 
-    start-record "${audio}" "${x}" "${y}" "${w}" "${h}" "${g}"
-}
+    start-record "${audio}" "${x}" "${y}" "${w}" "${h}"
+)
 
 
-main() {
+main() (
+    set -e
+
     local audio=0
 
     local options
@@ -90,7 +113,7 @@ main() {
     done
 
     recordwindow "${audio}"
-}
+)
 
 
 main "$@"

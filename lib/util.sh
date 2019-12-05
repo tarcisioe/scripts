@@ -12,7 +12,7 @@ choose() {
     # Usage: choose FLAG TRUE_VALUE FALSE_VALUE
     #
     # Positional arguments:
-    #     FLAG          A 0/1 flag to run sudo without password.
+    #     FLAG          A 0/1 flag to select the value.
     #     TRUE_VALUE    The value to output if the flag is 1.
     #     FALSE_VALUE   The value to output if the flag is 0.
 

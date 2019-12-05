@@ -10,7 +10,7 @@ require util
 SSHOT_DIR="${HOME}/.screenshots"
 
 
-usage () {
+usage() {
 echo "\
 Usage: $(script-name) [OPTION...]
 Take a screenshot and either save it or copy it to clipboard.
@@ -23,62 +23,110 @@ Optional arguments:
 
 
 get-save-path() {
-    local filename
-    filename="$(dmenu -p "Filename (.png)" < /dev/null)"
+    # Use dmenu to get the filename to save.
+    #
+    # Usage: get-save-path DIRECTORY
+    #
+    # Positional arguments:
+    #     DIRECTORY   Where to save the file.
 
-    echo "${SSHOT_DIR}/${filename}.png"
+    local directory="${1}"
+
+    local filename
+    filename="$(dmenu -p "Filename (.png)" < /dev/null)" &&
+
+    echo "${directory}/${filename}.png"
 }
 
 
 save() {
-    local tmpfile="${1}"
+    # Save a file to directory chosen by the user.
+    #
+    # Usage: save FILE DIRECTORY
+    #
+    # Positional arguments:
+    #     FILE        The file to save.
+    #     DIRECTORY   Where to save it.
 
-    mkdir -p "${SSHOT_DIR}"
+    local file="${1}"
+    local directory="${2}"
+
+    mkdir -p "${directory}" &&
 
     local path
-    path="$(get-save-path)"
+    path="$(get-save-path "${directory}")" &&
 
-    cp "${tmpfile}" "${path}"
+    cp "${file}" "${path}"
 }
 
 
 copy-to-clipboard() {
-    xclip -t image/png "${1}" -selection clipboard &&
-    xclip -t image/png "${1}"
+    # Copy an image to both selection and clipboard X clipboards.
+    #
+    # Usage: save-or-clip FILE
+    #
+    # Positional arguments:
+    #     FILE   The file to copy.
+
+    local file="${1}"
+
+    xclip -t image/png "${file}" -selection clipboard &&
+    xclip -t image/png "${file}"
 }
 
 
 save-or-clip() {
+    # Save or send to clipboard a given temporary file.
+    #
+    # Usage: save-or-clip CLIP TMPFILE DIRECTORY
+    #
+    # Positional arguments:
+    #     CLIP        A 0/1 flag to send to clipboard or not (save to file).
+    #     TMPFILE     The filename of the temporary file. Will be deleted in the
+    #                 end.
+    #     DIRECTORY   The directory where to save the file if that is the case.
+
     local clip="${1}"
     local tmpfile="${2}"
+    local directory="${3}"
 
     if [[ "${clip}" == 1 ]]
     then
         copy-to-clipboard "${tmpfile}"
     else
-        save "${tmpfile}"
-    fi
+        save "${tmpfile}" "${directory}"
+    fi || true  # We actually want to run the rm anyway.
 
     rm "${tmpfile}"
 }
 
 
 sshot() {
+    # Takes a screenshot of the whole screen or a region, and saves it or sends
+    # it to the clipboard .
+    #
+    # Usage: sshot SELECT CLIPBOARD
+    #
+    # Positional arguments:
+    #     SELECT      A 0/1 flag to either select a region or capture the whole
+    #                 screen.
+    #     CLIPBOARD   A 0/1 flag to send to clipboard or not (save to file).
+
     local select="${1}"
     local clipboard="${2}"
 
     local select_flag="$(choose "${select}" "-s" "")"
 
     local tmp
-    tmp="$(mktemp --suffix=.png)"
+    tmp="$(mktemp --suffix=.png)" &&
 
     maim -ou ${select_flag} "${tmp}" &&
-    save-or-clip "${clipboard}" "${tmp}"
+    save-or-clip "${clipboard}" "${tmp}" "${SSHOT_DIR}"
 }
 
 
 main() (
-    set -euo pipefail
+    set -e
 
     local select=0;
     local clipboard=0;

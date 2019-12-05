@@ -25,13 +25,18 @@ Optional arguments:
 
 
 nickname() {
+    # Echo the user-defined nickname, the global nickname, or the real hostname.
+    # They are looked up in that order. Search stops when any of them is found.
+
     cat "${USER_CONFIG_FILE}" 2> /dev/null ||
     cat "${GLOBAL_CONFIG_FILE}" 2> /dev/null ||
     hostname
 }
 
 
-main() {
+main() (
+    set -e
+
     local options
     options=$(getopt -o h -l help -- "$@")
     eval set -- "$options"
@@ -49,6 +54,6 @@ main() {
     done
 
     nickname
-}
+)
 
 main "$@"
