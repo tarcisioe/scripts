@@ -24,37 +24,31 @@ That's a very educated way to ask, thank you very much.
 
 ### The header
 
-Every script in this repository, for now, has a _terrible_ header which you
-should pretend does not exist for now. It looks like this:
+All scripts found here begin the same way, along these lines:
 
 ```bash
-set -euo pipefail
+#!/bin/bash
 
-SCRIPT_LIB_ROOT="$(readlink -f "$(dirname "$(readlink -f "$0")")"/..")/lib"
-source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+source scriptlib-init
+
+require ui
+
+SOME_CONST="..."
 ```
 
-That should be enough to put off any normal person, but stay with me here. There
-are two things happening here. The first line enables some interesting features
-in `bash`:
+What we see here is the following:
 
-* `-e` means we want to exit on error. This doesn't apply perfectly to
-  functions, though, so we still need care;
-* `-u` means we want to exit if an undefined variable is used;
-* `-o pipefail` means we want to exit if a pipe operation (output redirection
-  to another process) fails.
-
-The following two lines are:
-
-* Finding the directory where the scripts live:
-    * `readlink -f "$0"` resolves any symbolic links to where the script is
-      located;
-    * `dirname` gets only the directory part of a path, removing the last
-      segment;
-    * The second (outermost) `readlink -f` resolves any `..` in the path.
-* `source`ing the init file, which basically turns on the `require` mechanism,
-  allowing for ease of modularity on the scripts.
-
+* `#!/bin/bash` is called a "shebang". It tells the operating system that this
+  file should be executed with `bash`. I chose bash because it is widely
+  available and doesn't suck as bad as `sh`.
+* `source scriptlib-init` is somewhat of a magic line right now. It enables the
+  `require` mechanism. Don't think too much about it. It is explained much later
+  in this README.
+* `require ui`, or `require` anything for that matter, loads a file from the
+  `lib` folder, taking care not to load it more than once.
+* `SOME_CONST="..."` is a variable definition. I follow the convention that
+  uppercase variables are constants, and use them very sparingly to avoid
+  conflicts with environment variables, or variables used by `bash`.
 
 ### The `main` function
 
@@ -133,3 +127,40 @@ utility functions to:
 
 Unfortunately, that means the scripts here aren't standalone. Sorry about that,
 I guess.
+
+
+### `scriptlib-init`, what the...
+
+Every script in this repository starts by sourcing `scriptlib-init`. It is in
+the `bin` directory and has the following important lines:
+
+```bash
+set -euo pipefail
+
+SCRIPT_LIB_ROOT="$(readlink -f "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../lib")"
+source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+```
+
+That should be enough to put off any normal person, but stay with me here. There
+are two things happening here. The first line enables some interesting features
+in `bash`:
+
+* `-e` means we want to exit on error. This doesn't apply perfectly to
+  functions, though, so we still need care;
+* `-u` means we want to exit if an undefined variable is used;
+* `-o pipefail` means we want to exit if a pipe operation (output redirection
+  to another process) fails.
+
+The following two lines are:
+
+* Finding the directory where the scripts live:
+    * `readlink -f "$0"` resolves any symbolic links to where the script is
+      located;
+    * `dirname` gets only the directory part of a path, removing the last
+      segment;
+    * The second (outermost) `readlink -f` resolves any `..` in the path.
+* `source`ing the init file, which basically turns on the `require` mechanism,
+  allowing for ease of modularity on the scripts.
+
+What comes after that is just taking care to warn the user that this file is
+meant to be sourced, not executed.

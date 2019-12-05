@@ -8,10 +8,7 @@
 
 # This command has no help flag because it is a transparent wrapper.
 
-set -eou pipefail
-
-SCRIPT_LIB_ROOT="$(readlink -f "$(dirname "$(readlink -f "$0")")/../lib")"
-source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+source scriptlib-init
 
 require path-util
 

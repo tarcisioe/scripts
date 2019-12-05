@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_LIB_ROOT="$(readlink -f "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../lib")"
+source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+
+[[ "${BASH_SOURCE[0]}" != "${0}" ]] || {
+    require ui
+    die "$(script-name) is only meant to be sourced."
+}
