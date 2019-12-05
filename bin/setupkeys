@@ -1,0 +1,55 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require util
+
+
+usage() {
+echo "\
+Usage: $(script-name) [OPTION...]
+Setup details of the keyboard on X:
+- Swap caps and ctrl.
+- Disable the physical esc key.
+- Make a short tap on ctrl an esc.
+
+Optional arguments
+    -h/--help     Print this help message and exit."
+}
+
+
+setupkeys() (
+    set -e
+
+    pkill xcape
+
+    setxkbmap -option "ctrl:swapcaps"
+    xmodmap -e "keycode 9 = "
+    xmodmap -e "keycode 255 = Escape"
+    xcape -e 'Control_L=Escape' -t 200
+)
+
+
+main() (
+    set -e
+
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    setupkeys
+)
+
+
+main "$@"

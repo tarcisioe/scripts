@@ -27,3 +27,8 @@ choose() {
         printf "%s" "${b}"
     fi
 }
+
+
+bool() {
+    eval "$@" && printf 1 || printf 0
+}

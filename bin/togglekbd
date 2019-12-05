@@ -1,0 +1,64 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require util
+
+
+usage() {
+echo "\
+Usage: $(script-name) [OPTION...]
+Toggle the keyboard layout in use (dvorak-mod <-> abnt2).
+
+Optional arguments:
+    -h/--help     Print this help message and exit."
+}
+
+
+togglekbd() (
+    set -e
+
+    local current_kbmap
+    current_kbmap=$(
+        setxkbmap -query |
+        grep variant |
+        cut -d ':' -f 2 |
+        sed -e 's/\s//g'
+    )
+
+    local is_dvorak
+    is_dvorak="$(
+        bool [[ "${current_kbmap}" == 'dvorak-mod' ]]
+    )"
+
+    local next_kbmap="$(choose "${is_dvorak}" 'abnt2' 'dvorak-mod')"
+
+    setxkbmap br "${next_kbmap}"
+
+    setupkeys
+)
+
+
+main() (
+    set -e
+
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    togglekbd
+)
+
+
+main "$@"

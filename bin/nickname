@@ -10,7 +10,7 @@ USER_CONFIG_FILE="${XDG_CONFIG_PATH:-"${HOME}/.config"}/nickname"
 GLOBAL_CONFIG_FILE="/etc/nickname"
 
 
-usage () {
+usage() {
 echo "\
 Usage: $(script-name) [OPTION...]
 Show a nickname (not valid in the network) for the machine, or the hostname.
