@@ -10,7 +10,7 @@
 
 set -eou pipefail
 
-SCRIPT_LIB_ROOT="$(readlink -f "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/..")/lib"
+SCRIPT_LIB_ROOT="$(readlink -f "$(dirname "$(readlink -f "$0")")/../lib")"
 source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
 
 require path-util
