@@ -1,0 +1,75 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require util
+
+
+usage() {
+echo "\
+Usage: $(script-name) [OPTION...] [N_MONTHS]
+Show the calendar as a notification.
+
+Optional arguments:
+    -h/--help     Print this help message and exit.
+
+Positional arguments:
+    N_MONTHS   Number of months to show around the current month."
+}
+
+
+faketty () (
+    # Run a command forcing it to see its output as a tty.
+
+    export TERM=xterm
+    script -qfec "$(printf "%q " "$@")" /dev/null
+)
+
+
+ascii_escape_to_pango() {
+    # Convert ascii escapes from stdin to pango markup.
+
+    sed -e 's#'$(echo -e '\033\[7m')'#<span foreground="black" background="white">#g' \
+        -e 's#'$(echo -e '\033\[27m')'#</span>#g'
+}
+
+
+calendar() {
+    # Show the calendar through a notification.
+    #
+    # Usage: calendar N_MONTHS
+    #
+    # Positional arguments:
+    #     N_MONTHS   Number of months to show around the current month.
+
+    local n_months="${1:-1}"
+
+    notify-send ' ' "$(faketty cal -n "${n_months}" -S | ascii_escape_to_pango)"
+}
+
+
+main() (
+    set -e
+
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    let n_months="${1:-1}"
+
+    calendar "${n_months}"
+)
+
+
+main "$@"

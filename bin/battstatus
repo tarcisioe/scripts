@@ -1,0 +1,66 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require util
+
+
+usage() {
+echo "\
+Usage: $(script-name) [OPTION...]
+Show the battery level as a notification.
+
+Optional arguments:
+    -h/--help     Print this help message and exit."
+}
+
+
+battery-symbol() {
+    local status="${1}"
+    local batt="${2}"
+
+    (($status == 1)) && { printf ''; return; }
+
+    (($batt <= 25)) && { printf ''; return; }
+    (($batt <= 50)) && { printf ''; return; }
+    (($batt <= 75)) && { printf ''; return; }
+
+    printf ''
+}
+
+
+battstatus() {
+    local batt
+    batt=$(</sys/class/power_supply/BAT1/capacity)
+    local status
+    status=$(</sys/class/power_supply/ADP1/online)
+
+    local symbol
+    symbol="$(battery-symbol "${status}" "${batt}")"
+    notify-send -t 1000 ' ' "${symbol} ${batt}%"
+}
+
+
+main() (
+    set -e
+
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    battstatus
+)
+
+
+main "$@"
