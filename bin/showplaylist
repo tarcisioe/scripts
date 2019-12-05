@@ -1,3 +1,8 @@
 #!/bin/bash
 
-notify-send -t 1000 -- ' ' "$(cleese playlist | grep -C 5 -- '->')"
+source scriptlib-init
+
+require notify
+
+
+send-notification "$(cleese playlist | grep -C 5 -- '->')"

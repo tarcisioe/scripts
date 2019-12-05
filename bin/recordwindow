@@ -3,6 +3,7 @@
 source scriptlib-init
 
 require util
+require notify
 
 OUTPUT="/tmp/output.mp4"
 PIDFILE="/tmp/vshot.pid"
@@ -25,8 +26,8 @@ stop-capture-if-active() {
     [[ ! -f "${PIDFILE}" ]] && return 1
 
     (kill $(<"${PIDFILE}") &&
-        notify-send ' ' "Done capturing." ||
-        notify-send ' ' "Couldn't stop capture.") &&
+        send-notification "Done capturing." ||
+        send-notification "Couldn't stop capture.") &&
     rm "${PIDFILE}" &&
 
     xclip -sel c -t text/uri-list <<< "file://${OUTPUT}"

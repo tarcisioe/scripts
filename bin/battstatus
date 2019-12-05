@@ -3,6 +3,7 @@
 source scriptlib-init
 
 require util
+require notify
 
 
 usage() {
@@ -37,7 +38,8 @@ battstatus() {
 
     local symbol
     symbol="$(battery-symbol "${status}" "${batt}")"
-    notify-send -t 1000 ' ' "${symbol} ${batt}%"
+
+    send-notification "${symbol} ${batt}%"
 }
 
 
