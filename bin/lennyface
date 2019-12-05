@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_LIB_ROOT="$(readlink -f "$(dirname "$(readlink -f "$0")")/../lib")"
+source "${SCRIPT_LIB_ROOT}/init.sh" "${SCRIPT_LIB_ROOT}"
+
+require clipboard
+
+set-clipboard '( ͡° ͜ʖ ͡°)'

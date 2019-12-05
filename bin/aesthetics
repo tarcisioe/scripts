@@ -27,8 +27,7 @@ aesthetics() {
     local aestheticised
     aestheticised=$(python -c "print(' '.join('${text}'))")
 
-    echo -n "${aestheticised}" | xclip
-    echo -n "${aestheticised}" | xclip -sel c
+    set-clipboard "${aestheticised}"
 }
 
 
