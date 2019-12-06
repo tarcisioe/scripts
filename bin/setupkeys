@@ -21,7 +21,7 @@ Optional arguments
 setupkeys() (
     set -e
 
-    pkill xcape
+    pkill xcape || true
 
     setxkbmap -option "ctrl:swapcaps"
     xmodmap -e "keycode 9 = "
