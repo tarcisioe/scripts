@@ -1,0 +1,45 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require util
+
+
+usage() {
+echo "\
+Usage: $(script-name) [OPTION...]
+Play the link on the clipboard with mpv.
+
+Optional arguments:
+    -h/--help    Print this help message and exit."
+}
+
+
+playlink() {
+    mpv "$(xclip -o)" 2> /dev/null & disown
+}
+
+
+main() {
+    set -e
+
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    playlink
+}
+
+
+main "$@"
