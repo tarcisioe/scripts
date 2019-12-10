@@ -1,0 +1,78 @@
+#!/bin/bash
+
+source scriptlib-init
+
+TERMINAL="${TERMINAL:-st}"
+WINNAME="urxvt-console"
+
+
+spawn-console() {
+    case "${TERMINAL}" in
+        st)
+            "${TERMINAL}" -g 80x1+1+1 -n "${WINNAME}"
+            ;;
+        *)
+            "${TERMINAL}" -geometry 80x1-0-0 -name "${WINNAME}"
+            ;;
+    esac
+}
+
+
+list-window-ids() {
+    xprop -root |
+    grep '_NET_CLIENT_LIST(WINDOW)' |
+    sed -e 's/.*#\s//' -e 's/, /\n/g'
+}
+
+
+xprop-by-id() {
+    local id="${1}"
+
+    xprop -id "${id}" 2> /dev/null
+}
+
+
+get-window-state() {
+    local window_name="${1}"
+    local ids="$(list-window-ids)"
+
+    for id in ${ids}
+    do
+        local xprop_output="$(xprop-by-id "${id}")"
+
+        if [[ "${xprop_output}" == *"${window_name}"* ]]
+        then
+            [[ "${xprop_output}" == *'Withdrawn'* ]] &&
+                echo 'HIDDEN' ||
+                echo 'SHOWING'
+        return
+        fi
+
+    done
+
+    echo 'CLOSED'
+}
+
+
+spawn-show-or-hide() {
+    local window_name="${1}"
+
+    local window_state="$(get-window-state "${window_name}")"
+
+    case "${window_state}" in
+        'CLOSED')
+            "${@:2}" & disown ;;
+        'HIDDEN')
+            i3-msg '[instance="'${window_name}'"]' scratchpad show ;;
+        'SHOWING')
+            i3-msg '[instance="'${window_name}'"]' move scratchpad ;;
+    esac
+}
+
+
+console() {
+    spawn-show-or-hide "${WINNAME}" spawn-console
+}
+
+
+console
