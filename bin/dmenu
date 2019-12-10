@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require path-util
+require ui
+require wrap
+
+
+main() {
+    exec-if-available rofi -dmenu "$@" ||
+    wrap -fn "Droid Sans Mono-9" "$@" ||
+    die "Could not find rofi or dmenu."
+}
+
+
+main "$@"

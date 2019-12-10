@@ -1,0 +1,37 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require wrap
+
+
+rename-tty() {
+    local name="${1}"
+
+    echo -ne "\033]0;${name}\007"
+}
+
+
+ping-i3() {
+    i3 --get-socketpath > /dev/null &&
+        i3-msg mode default > /dev/null
+}
+
+
+rename-and-ping() {
+    local name="${1}"
+
+    rename-tty "${name}"
+    sleep 0.01
+    ping-i3
+}
+
+
+main() {
+    rename-and-ping VIM
+    wrap "$@"
+    rename-and-ping st
+}
+
+
+main "$@"
