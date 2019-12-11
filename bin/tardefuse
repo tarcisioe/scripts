@@ -98,7 +98,7 @@ tardefuse() {
 }
 
 
-main() {
+main() (
     local options
     options=$(getopt -o h -l help -- "$@")
     eval set -- "$options"
@@ -119,7 +119,7 @@ main() {
     [[ -n "${tar_file}" ]] || die-usage "Missing a file to extract."
 
     tardefuse "${tar_file}"
-}
+)
 
 
 main "$@"

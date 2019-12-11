@@ -20,7 +20,7 @@ playlink() {
 }
 
 
-main() {
+main() (
     set -e
 
     local options
@@ -39,7 +39,7 @@ main() {
     done
 
     playlink
-}
+)
 
 
 main "$@"

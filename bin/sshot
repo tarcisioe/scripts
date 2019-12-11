@@ -13,9 +13,9 @@ Usage: $(script-name) [OPTION...]
 Take a screenshot and either save it or copy it to clipboard.
 
 Optional arguments:
+    -c/--clipboard   Copy screenshot to clipboard.
     -h/--help        Print this help message and exit.
-    -s/--select      Enable region selection.
-    -c/--clipboard   Copy screenshot to clipboard."
+    -s/--select      Enable region selection."
 }
 
 
@@ -143,9 +143,8 @@ main() (
             -c|--clipboard)
                 clipboard=1
                 ;;
-            *)
-                break
-                ;;
+            --) shift ;&
+            *) break ;;
         esac
         shift
     done

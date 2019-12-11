@@ -15,8 +15,8 @@ Usage: $(script-name) [OPTION...]
 Record a window or a selected portion of a screen and send result to clipboard.
 
 Optional arguments:
-    -h/--help    Print this help message and exit.
-    -a/--audio   Capture audio."
+    -a/--audio   Capture audio.
+    -h/--help    Print this help message and exit."
 }
 
 
@@ -103,9 +103,8 @@ main() (
             -a|--audio)
                 audio=1
                 ;;
-            *)
-                break
-                ;;
+            --) shift ;&
+            *) break ;;
         esac
         shift
     done

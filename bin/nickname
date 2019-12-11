@@ -45,9 +45,8 @@ main() (
             -h|--help)
                 usage && exit 0
                 ;;
-            *)
-                break
-                ;;
+            --) shift ;&
+            *) break ;;
         esac
         shift
     done
