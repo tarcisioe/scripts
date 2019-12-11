@@ -2,8 +2,20 @@
 
 source scriptlib-init
 
+require util
+
 TERMINAL="${TERMINAL:-st}"
 WINNAME="urxvt-console"
+
+
+usage() {
+echo "\
+Usage: $(script-name) [OPTION...]
+Spawn, hide or show a console in the corner of the screen.
+
+Optional arguments:
+    -h/--help     Print this help message and exit."
+}
 
 
 spawn-console() {
@@ -63,9 +75,9 @@ spawn-show-or-hide() {
         'CLOSED')
             "${@:2}" & disown ;;
         'HIDDEN')
-            i3-msg '[instance="'${window_name}'"]' scratchpad show ;;
+            i3-msg '[instance="'${window_name}'"]' scratchpad show 2>&1 > /dev/null ;;
         'SHOWING')
-            i3-msg '[instance="'${window_name}'"]' move scratchpad ;;
+            i3-msg '[instance="'${window_name}'"]' move scratchpad 2>&1 > /dev/null ;;
     esac
 }
 
@@ -75,4 +87,26 @@ console() {
 }
 
 
-console
+main() (
+    set -e
+
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    console
+)
+
+
+main "$@"

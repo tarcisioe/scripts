@@ -1,0 +1,47 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require util
+
+TERMINAL="${TERMINAL:-st}"
+
+
+usage() {
+echo "\
+Usage: $(script-name) [OPTION...]
+Spawn a new terminal in the current working directory.
+
+Optional arguments:
+    -h/--help     Print this help message and exit."
+}
+
+
+spawn() {
+    "${TERMINAL}" 2> /dev/null & disown
+}
+
+
+main() (
+    set -e
+
+    local options
+    options=$(getopt -o h -l help -- "$@")
+    eval set -- "$options"
+
+    while true; do
+        case "$1" in
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    spawn
+)
+
+
+main "$@"
