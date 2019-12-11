@@ -2,6 +2,7 @@
 
 source scriptlib-init
 
+require clipboard
 require util
 
 
