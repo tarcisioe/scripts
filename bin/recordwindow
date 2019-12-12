@@ -80,7 +80,9 @@ recordwindow() (
     stop-capture-if-active && return
 
     local x y w h g
-    read -r x y w h g <<< "$(slop -f "%x %y %w %h")" &&
+    local slop_output
+    slop_output="$(slop -f "%x %y %w %h")"
+    read -r x y w h g <<< "${slop_output}"
 
     start-record "${audio}" "${x}" "${y}" "${w}" "${h}"
 )
