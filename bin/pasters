@@ -1,0 +1,36 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require ui
+
+
+mimetype() {
+    # Get a file's mimetype.
+
+    local file="${1}"
+
+    file -i "${file}" | cut -d' ' -f2
+}
+
+
+send-pasters() {
+    local file="${1}"
+
+    curl --data-binary @"${file}" https://paste.rs
+}
+
+
+main() {
+    local file="${1:-/dev/stdin}"
+
+    [[ -f "${file}" ]] ||
+        die "${file} is not a file."
+    [[ "$(mimetype "${file}")" == 'text/'* ]] ||
+        die "${file} is not a text file."
+
+    send-pasters "${file}"
+}
+
+
+main "$@"
