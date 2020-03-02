@@ -112,7 +112,7 @@ sshot() {
     local select="${1}"
     local clipboard="${2}"
 
-    local select_flag="$(choose "${select}" "-s" "")"
+    local select_flag="$(choose "${select}" "-sB" "")"
 
     local tmp
     tmp="$(mktemp --suffix=.png)" &&
