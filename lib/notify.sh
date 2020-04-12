@@ -11,5 +11,5 @@ send-notification() {
     local text="${1}"
     local duration="${2:-1000}"
 
-    notify-send -t "${duration}" ' ' "${text}"
+    notify-send -t "${duration}" -- ' ' "${text}"
 }
