@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require wrap
+
+
+main() {
+    wrap --no-init $@ -- tmux new-session -ADs default
+}
+
+
+main "$@"
