@@ -21,19 +21,19 @@ togglekbd() (
     local current_kbmap
     current_kbmap=$(
         setxkbmap -query |
-        grep variant |
+        grep layout |
         cut -d ':' -f 2 |
         sed -e 's/\s//g'
     )
 
     local is_dvorak
     is_dvorak="$(
-        bool [[ "${current_kbmap}" == 'dvorak-mod' ]]
+        bool [[ "${current_kbmap}" == 'br-dvorak-mod' ]]
     )"
 
-    local next_kbmap="$(choose "${is_dvorak}" 'abnt2' 'dvorak-mod')"
+    local next_kbmap="$(choose "${is_dvorak}" 'br abnt2' 'br-dvorak-mod')"
 
-    setxkbmap br "${next_kbmap}"
+    setxkbmap ${next_kbmap}
 
     setupkeys
 )
