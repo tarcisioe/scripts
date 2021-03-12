@@ -4,8 +4,8 @@ source scriptlib-init
 
 require util
 
-TERMINAL="${TERMINAL:-st}"
-WINNAME="urxvt-console"
+TERMINAL="${TERMINAL:-urxvt}"
+WINNAME="terminal-console"
 
 
 usage() {
@@ -19,14 +19,7 @@ Optional arguments:
 
 
 spawn-console() {
-    case "${TERMINAL}" in
-        st)
-            "${TERMINAL}" -g 80x1+1+1 -n "${WINNAME}"
-            ;;
-        *)
-            "${TERMINAL}" -geometry 80x1-0-0 -name "${WINNAME}"
-            ;;
-    esac
+    "${TERMINAL}" -geometry 80x1-0-0 -name "${WINNAME}"
 }
 
 
