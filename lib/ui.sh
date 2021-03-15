@@ -53,7 +53,7 @@ print-bad() {
     #
     # Always returns non-zero, to ensure failure with `set -e`.
 
-    log "$(bad "$@")" 1>&2 && return 1
+    log "$(bad "$@")" 1>&2
 }
 
 print-good() {
