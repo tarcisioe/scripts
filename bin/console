@@ -2,6 +2,7 @@
 
 source scriptlib-init
 
+require dependencies
 require util
 
 TERMINAL="${TERMINAL:-urxvt}"
@@ -102,4 +103,5 @@ main() (
 )
 
 
+check-dependencies xprop
 main "$@"

@@ -2,6 +2,7 @@
 
 source scriptlib-init
 
+require dependencies
 require wrap
 
 
@@ -10,4 +11,5 @@ main() {
 }
 
 
+check-dependencies mosh
 main "$@"

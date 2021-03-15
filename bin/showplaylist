@@ -2,7 +2,9 @@
 
 source scriptlib-init
 
+require dependencies
 require notify
 
 
+check-dependencies cleese
 send-notification "$(cleese playlist | grep -C 5 -- '->')"

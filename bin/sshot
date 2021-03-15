@@ -2,6 +2,7 @@
 
 source scriptlib-init
 
+require dependencies
 require util
 
 SSHOT_DIR="${HOME}/.screenshots"
@@ -153,4 +154,5 @@ main() (
 )
 
 
+check-dependencies maim xclip
 main "$@"

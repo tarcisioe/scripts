@@ -1,3 +1,8 @@
+require dependencies
+
+check-dependencies notify-send
+
+
 send-notification() {
     # Send text on the body of a notification.
     #

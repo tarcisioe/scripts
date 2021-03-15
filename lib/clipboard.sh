@@ -1,3 +1,8 @@
+require dependencies
+
+check-dependencies xclip
+
+
 set-clipboard() {
     # Set the X selection and clipboard clipboards to some text.
     #

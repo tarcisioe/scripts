@@ -2,6 +2,7 @@
 
 source scriptlib-init
 
+require dependencies
 require util
 require notify
 
@@ -115,4 +116,5 @@ main() (
 )
 
 
+check-dependencies ffmpeg slop xclip
 main "$@"

@@ -2,6 +2,7 @@
 
 source scriptlib-init
 
+require dependencies
 require ui
 
 
@@ -33,4 +34,5 @@ main() {
 }
 
 
+check-dependencies file curl
 main "$@"

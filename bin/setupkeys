@@ -2,6 +2,7 @@
 
 source scriptlib-init
 
+require dependencies
 require util
 
 
@@ -52,4 +53,5 @@ main() (
 )
 
 
+check-dependencies setxkbmap xcape xmodmap
 main "$@"

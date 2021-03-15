@@ -3,6 +3,7 @@
 source scriptlib-init
 
 require clipboard
+require dependencies
 require util
 
 
@@ -51,4 +52,5 @@ main() (
 )
 
 
+check-dependencies xclip python
 main "$@"

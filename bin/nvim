@@ -2,6 +2,7 @@
 
 source scriptlib-init
 
+require dependencies
 require wrap
 
 
@@ -28,10 +29,11 @@ rename-and-ping() {
 
 
 main() {
-    rename-and-ping VIM
+    rename-and-ping VIM || true
     wrap "$@"
-    rename-and-ping st
+    rename-and-ping urxvt || true
 }
 
 
+check-dependencies i3 i3-msg
 main "$@"
