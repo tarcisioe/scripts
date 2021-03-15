@@ -15,7 +15,7 @@ check-dependencies() {
     for command in "${@}"
     do
         command-available "${command}" || {
-            print-bad "Command ${command} unavailable." \
+            print-bad "Command $(yellow "${command}") unavailable." \
                 "Please install it to use this script."
             failed=1
         }
