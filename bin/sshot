@@ -16,7 +16,8 @@ Take a screenshot and either save it or copy it to clipboard.
 Optional arguments:
     -c/--clipboard   Copy screenshot to clipboard.
     -h/--help        Print this help message and exit.
-    -s/--select      Enable region selection."
+    -s/--select      Enable region selection.
+    -f/--file-uri    Use file-uri to copy instead of copying the image buffer."
 }
 
 
@@ -64,12 +65,20 @@ copy-to-clipboard() {
     # Usage: save-or-clip FILE
     #
     # Positional arguments:
-    #     FILE   The file to copy.
+    #     FILE_URI    A 0/1 flag to use file uri to clip or not.
+    #     FILE        The file to copy.
 
-    local file="${1}"
+    local file_uri="${1}"
+    local file="${2}"
 
-    xclip -t image/png "${file}" -selection clipboard &&
-    xclip -t image/png "${file}"
+    if [[ "${file_uri}" ]]
+    then
+        xclip -t image/png "${file}" -selection clipboard &&
+        xclip -t image/png "${file}"
+    else
+        xclip -t 'text/uri-list' -selection clipboard <<< "file://${file}" &&
+        xclip -t 'text/uri-list' <<< "file://${file}"
+    fi
 }
 
 
@@ -80,22 +89,27 @@ save-or-clip() {
     #
     # Positional arguments:
     #     CLIP        A 0/1 flag to send to clipboard or not (save to file).
+    #     FILE_URI    A 0/1 flag to use file uri to clip or not.
     #     TMPFILE     The filename of the temporary file. Will be deleted in the
     #                 end.
     #     DIRECTORY   The directory where to save the file if that is the case.
 
     local clip="${1}"
-    local tmpfile="${2}"
-    local directory="${3}"
+    local file_uri="${2}"
+    local tmpfile="${3}"
+    local directory="${4}"
 
     if [[ "${clip}" == 1 ]]
     then
-        copy-to-clipboard "${tmpfile}"
+        copy-to-clipboard "${file_uri}" "${tmpfile}"
     else
         save "${tmpfile}" "${directory}"
     fi || true  # We actually want to run the rm anyway.
 
-    rm "${tmpfile}"
+    if ! [[ "${clipboard}" == 1 ]] || [[ ${file_uri} == 0 ]]
+    then
+         rm "${tmpfile}"
+    fi
 }
 
 
@@ -109,9 +123,11 @@ sshot() {
     #     SELECT      A 0/1 flag to either select a region or capture the whole
     #                 screen.
     #     CLIPBOARD   A 0/1 flag to send to clipboard or not (save to file).
+    #     FILE_URI    A 0/1 flag to use file uri to clip or not.
 
     local select="${1}"
     local clipboard="${2}"
+    local file_uri="${3}"
 
     local select_flag="$(choose "${select}" "-sB" "")"
 
@@ -119,7 +135,7 @@ sshot() {
     tmp="$(mktemp --suffix=.png)" &&
 
     maim -ou ${select_flag} "${tmp}" &&
-    save-or-clip "${clipboard}" "${tmp}" "${SSHOT_DIR}"
+    save-or-clip "${clipboard}" "${file_uri}" "${tmp}" "${SSHOT_DIR}"
 }
 
 
@@ -128,9 +144,10 @@ main() (
 
     local select=0;
     local clipboard=0;
+    local file_uri=0;
 
     local options
-    options=$(getopt -o hsc -l help,select,clipboard -- "$@")
+    options=$(getopt -o hscf -l help,select,clipboard,file-uri -- "$@")
     eval set -- "$options"
 
     while true; do
@@ -144,13 +161,19 @@ main() (
             -c|--clipboard)
                 clipboard=1
                 ;;
+            -f|--file-uri)
+                file_uri=1
+                ;;
             --) shift ;&
             *) break ;;
         esac
         shift
     done
 
-    sshot "${select}" "${clipboard}"
+    { [[ "${file_uri}" == 1 ]] && [[ "${clipboard}" == 0 ]]; } &&
+        die "Option file-uri can only be used with clipboard."
+
+    sshot "${select}" "${clipboard}" "${file_uri}"
 )
 
 
