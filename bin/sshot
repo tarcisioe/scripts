@@ -71,13 +71,13 @@ copy-to-clipboard() {
     local file_uri="${1}"
     local file="${2}"
 
-    if [[ "${file_uri}" ]]
+    if [[ "${file_uri}" == 1 ]]
     then
-        xclip -t image/png "${file}" -selection clipboard &&
-        xclip -t image/png "${file}"
-    else
         xclip -t 'text/uri-list' -selection clipboard <<< "file://${file}" &&
         xclip -t 'text/uri-list' <<< "file://${file}"
+    else
+        xclip -t image/png "${file}" -selection clipboard &&
+        xclip -t image/png "${file}"
     fi
 }
 
