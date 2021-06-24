@@ -28,10 +28,16 @@ rename-and-ping() {
 }
 
 
+current-title() {
+    xprop -id "${WINDOWID}" WM_NAME | cut -f 2 -d "=" | xargs echo
+}
+
+
 main() {
-    rename-and-ping VIM || true
-    wrap "$@"
-    rename-and-ping urxvt || true
+    local title="$(current-title)"
+    rename-and-ping "VIM" || true
+    wrap-no-exec "$@"
+    rename-and-ping "$title" || true
 }
 
 
