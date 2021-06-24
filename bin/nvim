@@ -2,7 +2,6 @@
 
 source scriptlib-init
 
-require dependencies
 require wrap
 
 
@@ -13,33 +12,33 @@ rename-tty() {
 }
 
 
-ping-i3() {
-    i3 --get-socketpath > /dev/null &&
-        i3-msg mode default > /dev/null
+try-ping-i3() {
+     i3-msg mode default > /dev/null 2>&1 || true
 }
 
 
-rename-and-ping() {
+rename-and-try-ping() {
     local name="${1}"
 
     rename-tty "${name}"
     sleep 0.01
-    ping-i3
+    try-ping-i3
 }
 
 
 current-title() {
-    xprop -id "${WINDOWID}" WM_NAME | cut -f 2 -d "=" | xargs echo
+    [[ -n "${WINDOWID:-}" ]] &&
+        xprop -id "${WINDOWID}" WM_NAME | cut -f 2 -d "=" | xargs echo
 }
 
 
 main() {
     local title="$(current-title)"
-    rename-and-ping "VIM" || true
+
+    rename-and-try-ping "VIM" || true
     wrap-no-exec "$@"
-    rename-and-ping "$title" || true
+    rename-and-try-ping "$title" || true
 }
 
 
-check-dependencies i3 i3-msg
 main "$@"
