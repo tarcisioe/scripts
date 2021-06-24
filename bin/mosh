@@ -7,7 +7,7 @@ require wrap
 
 
 main() {
-    wrap --no-init $@ -- tmux new-session -ADs default
+    wrap --no-init "$@" -- tmux new-session -ADs default
 }
 
 
