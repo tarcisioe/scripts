@@ -20,7 +20,7 @@ Optional arguments:
 
 
 spawn-console() {
-    "${TERMINAL}" -geometry 80x1-0-0 -name "${WINNAME}"
+    "${TERMINAL}" -geometry 80x1-0+0 -name "${WINNAME}"
 }
 
 
