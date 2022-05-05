@@ -1,0 +1,58 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require clipboard
+require dependencies
+require util
+
+
+usage() {
+echo "\
+Usage: $(script-name) [OPTION...]
+"
+}
+
+
+convert() {
+    local input="${1}"
+    local output="${2}"
+    local crf="${3:-}"
+
+    ffmpeg -i "${input}" -crf "${crf}" -preset veryfast -vcodec libx264 -acodec aac "${output}"
+}
+
+
+main() (
+    set -e
+
+    local options
+    options=$(getopt -o c:,h -l crf:,help -- "$@")
+    eval set -- "$options"
+
+    local crf=27
+
+    while true; do
+        case "$1" in
+            -c|--crf)
+                crf="${2}"
+                shift
+                ;;
+            -h|--help)
+                usage && exit 0
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    local input="${1}"
+    local output="${2}"
+
+    convert "${input}" "${output}" "${crf}"
+)
+
+
+check-dependencies ffmpeg
+main "$@"
