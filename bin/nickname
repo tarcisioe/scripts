@@ -29,7 +29,8 @@ nickname() {
 
     cat "${USER_CONFIG_FILE}" 2> /dev/null ||
     cat "${GLOBAL_CONFIG_FILE}" 2> /dev/null ||
-    hostname
+    hostname 2> /dev/null ||
+    hostnamectl hostname
 }
 
 
