@@ -36,6 +36,12 @@ main() {
     local title="$(current-title)"
 
     rename-and-try-ping "VIM" || true
+
+    if [[ ${CONDA_SHLVL:-0} -gt 0 ]]
+    then
+        export LD_LIBRARY_PATH=
+    fi
+
     wrap-no-exec "$@"
     rename-and-try-ping "$title" || true
 }
