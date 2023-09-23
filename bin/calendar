@@ -28,11 +28,11 @@ faketty () (
 )
 
 
-ascii_escape_to_pango() {
+ascii-escape-to-pango() {
     # Convert ascii escapes from stdin to pango markup.
 
     sed -e 's#'$(echo -e '\033\[7m')'#<span foreground="black" background="white">#g' \
-        -e 's#'$(echo -e '\033\[27m')'#</span>#g'
+        -e 's#'$(echo -e '\033\[0m')'#</span>#g'
 }
 
 
@@ -46,7 +46,8 @@ calendar() {
 
     local n_months="${1:-1}"
 
-    send-notification "$(faketty cal -n "${n_months}" -S | ascii_escape_to_pango)"
+    local notification_text="$(faketty cal -n "${n_months}" -S | ascii-escape-to-pango)"
+    send-notification "${notification_text}"
 }
 
 
