@@ -1,9 +1,11 @@
 #!/bin/bash
+set -x
 
 source scriptlib-init
 
 require dependencies
 require util
+require notify
 
 
 usage() {
@@ -54,4 +56,4 @@ main() (
 
 
 check-dependencies setxkbmap xcape xmodmap
-main "$@"
+wrap-shortcut main "$@"

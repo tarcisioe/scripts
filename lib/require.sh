@@ -23,14 +23,14 @@ mark-imported() {
 }
 
 
-function script-path {
+script-path() {
     local module="${1}"
 
     echo "${REQUIREPATH}/${1}".sh
 }
 
 
-function require {
+require() {
     local module="${1}"
 
     is-imported "${module}" && return

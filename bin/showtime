@@ -5,4 +5,4 @@ source scriptlib-init
 require notify
 
 
-send-notification "$(date +%H:%M)"
+wrap-shortcut date "+%H:%M"

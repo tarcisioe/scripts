@@ -2,8 +2,9 @@
 
 source scriptlib-init
 
-require util
 require notify
+require path-util
+require util
 
 
 usage() {
@@ -32,14 +33,15 @@ battery-symbol() {
 
 battstatus() {
     local batt
-    batt=$(</sys/class/power_supply/BAT1/capacity)
+    batt=$(<$(first-file-of /sys/class/power_supply/BAT?/capacity))
+
     local status
-    status=$(</sys/class/power_supply/ADP1/online)
+    status=$(<$(first-file-of /sys/class/power_supply/ADP?/online))
 
     local symbol
     symbol="$(battery-symbol "${status}" "${batt}")"
 
-    send-notification "${symbol} ${batt}%"
+    echo "${symbol} ${batt}%"
 }
 
 
@@ -65,4 +67,4 @@ main() (
 )
 
 
-main "$@"
+wrap-shortcut main "$@"

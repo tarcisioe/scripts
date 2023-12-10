@@ -31,8 +31,10 @@ faketty () (
 ascii-escape-to-pango() {
     # Convert ascii escapes from stdin to pango markup.
 
-    sed -e 's#'$(echo -e '\033\[7m')'#<span foreground="black" background="white">#g' \
-        -e 's#'$(echo -e '\033\[0m')'#</span>#g'
+    is-a-shortcut &&
+        sed -e 's#'$(echo -e '\033\[7m')'#<span foreground="black" background="white">#g' \
+            -e 's#'$(echo -e '\033\[0m')'#</span>#g' ||
+        cat
 }
 
 
@@ -46,8 +48,7 @@ calendar() {
 
     local n_months="${1:-1}"
 
-    local notification_text="$(faketty cal -n "${n_months}" -S | ascii-escape-to-pango)"
-    send-notification "${notification_text}"
+    faketty cal -n "${n_months}" -S | ascii-escape-to-pango
 }
 
 
@@ -76,4 +77,4 @@ main() (
 
 
 check-dependencies cal script
-main "$@"
+wrap-shortcut main "$@"

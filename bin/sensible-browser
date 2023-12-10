@@ -10,31 +10,38 @@
 
 source scriptlib-init
 
+require ui
 require path-util
+require notify
 
 
-BROWSER="${BROWSER:-}"
+find-browser() {
+    local found
 
-BROWSERS=(
-    $BROWSER
-    chromium
-    google-chrome
-    google-chrome-stable
-    firefox
-)
+    found="$(first-of "$@")" &&
+        echo "${found}" ||
+        {
+            log "No sensible browser found." &&
+            return 1
+        }
+}
 
-main() (
-    set -e
 
+main() {
     local browser
+    local default="${BROWSER:-}"
 
-    for browser in "${BROWSERS[@]}"
-    do
-        if command-available "${browser}"
-        then
-            exec "${browser}" "$@"
-        fi
-    done
-)
+    local candidates=(
+        $BROWSER
+        chromium
+        google-chrome
+        google-chrome-stable
+        firefox
+    )
+
+    browser=$(wrap-shortcut-stderr find-browser "${candidates}") &&
+
+    exec "${browser}" "$@"
+}
 
 main "$@"

@@ -4,6 +4,7 @@ source scriptlib-init
 
 require dependencies
 require util
+require notify
 
 TERMINAL="${TERMINAL:-urxvt}"
 WINNAME="terminal-console"
@@ -104,4 +105,4 @@ main() (
 
 
 check-dependencies xprop
-main "$@"
+wrap-shortcut main "$@"

@@ -21,14 +21,19 @@ Optional arguments:
 }
 
 
+try-to-stop-capture() {
+    kill $(<"${PIDFILE}") > /dev/null 2>&1 &&
+        echo "Done capturing." ||
+        log "Couldn't stop capture. Cleaning pidfile."
+}
+
+
 stop-capture-if-active() {
     # Stops capture if it is active.
 
     [[ ! -f "${PIDFILE}" ]] && return 1
 
-    (kill $(<"${PIDFILE}") &&
-        send-notification "Done capturing." ||
-        send-notification "Couldn't stop capture.") &&
+    try-to-stop-capture &&
     rm "${PIDFILE}" &&
 
     xclip -sel c -t text/uri-list <<< "file://${OUTPUT}"
@@ -61,7 +66,7 @@ start-record() (
            ${audio_flag} \
            -vf 'scale=trunc(iw/2)*2:-2' \
            -pix_fmt yuv420p \
-           ${OUTPUT} &
+           ${OUTPUT} > /dev/null 2>&1 &
     echo "${!}" >> "${PIDFILE}"
 )
 
@@ -117,4 +122,4 @@ main() (
 
 
 check-dependencies ffmpeg slop xclip
-main "$@"
+wrap-shortcut main "$@"

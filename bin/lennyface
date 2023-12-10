@@ -3,5 +3,7 @@
 source scriptlib-init
 
 require clipboard
+require notify
 
-set-clipboard '( ͡° ͜ʖ ͡°)'
+
+wrap-shortcut set-clipboard '( ͡° ͜ʖ ͡°)'

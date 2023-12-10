@@ -42,3 +42,31 @@ exec-if-available()
 
     command-available "${command}" && exec "$@"
 }
+
+
+function first-command-of {
+    for candidate in "$@"
+    do
+        if command-available "${candidate}"
+        then
+            echo "${candidate}"
+            return
+        fi
+    done
+
+    return 1
+}
+
+
+function first-file-of {
+    for candidate in "$@"
+    do
+        if [[ -f "${candidate}" ]]
+        then
+            echo "${candidate}"
+            return
+        fi
+    done
+
+    return 1
+}

@@ -1,7 +1,7 @@
 require util
 
 
-function get-wrapped-command() {
+get-wrapped-command() {
     local script_name="$(script-name)"
 
     local script="$(path-to-script)"
@@ -20,7 +20,7 @@ function get-wrapped-command() {
     return 1
 }
 
-function wrap() {
+wrap() {
     # Wrap a command with the same name as the calling script, which comes after
     # it in `which -a`.
     #
@@ -37,7 +37,7 @@ function wrap() {
 }
 
 
-function wrap-no-exec() {
+wrap-no-exec() {
     # Wrap a command with the same name as the calling script, which comes after
     # it in `which -a`.
     #
