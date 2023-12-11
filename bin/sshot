@@ -143,6 +143,8 @@ sshot() {
 main() (
     set -e
 
+    check-dependencies
+
     local select=0;
     local clipboard=0;
     local file_uri=0;
@@ -178,5 +180,5 @@ main() (
 )
 
 
-check-dependencies maim xclip
+depend maim xclip
 wrap-shortcut main "$@"

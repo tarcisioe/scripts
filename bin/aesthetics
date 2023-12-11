@@ -33,6 +33,8 @@ aesthetics() {
 main() (
     set -e
 
+    check-dependencies
+
     local options
     options=$(getopt -o h -l help -- "$@")
     eval set -- "$options"
@@ -51,6 +53,5 @@ main() (
     aesthetics
 )
 
-
-check-dependencies xclip python
+depend xclip python
 main "$@"

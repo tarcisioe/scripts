@@ -55,6 +55,8 @@ calendar() {
 main() (
     set -e
 
+    check-dependencies
+
     local options
     options=$(getopt -o h -l help -- "$@")
     eval set -- "$options"
@@ -76,5 +78,5 @@ main() (
 )
 
 
-check-dependencies cal script
+depend cal script
 wrap-shortcut main "$@"

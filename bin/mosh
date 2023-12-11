@@ -11,5 +11,4 @@ main() {
 }
 
 
-check-dependencies mosh
 main "$@"

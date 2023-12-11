@@ -2,27 +2,38 @@ require path-util
 require ui
 
 
-check-dependencies() {
-    # Check if a list of dependency commands are available.
+SCRIPTLIB_DEPS=()
+
+
+depend() {
+    # Register dependency commands to check later.
     #
-    # Usage: check-dependencies [COMMANDS...]
+    # Usage: depend [COMMANDS...]
     #
     # Positional arguments:
-    #     COMMANDS   Commands to check for availability.
+    #     COMMANDS   Commands to check later for availability.
 
-    local failed=0
+    SCRIPTLIB_DEPS+=("$@")
+}
 
-    for command in "${@}"
+
+check-dependencies() {
+    # Check if the registered dependencies are available.
+    #
+    # Usage: check-dependencies
+
+    local failed=()
+
+    for command in "${SCRIPTLIB_DEPS[@]}"
     do
-        command-available "${command}" || {
-            print-bad "Command $(yellow "${command}") unavailable." \
-                "Please install it to use this script."
-            failed=1
-        }
+        command-available "${command}" ||
+            failed+=("${command}")
     done
 
-    if [[ ${failed} == '1' ]]
+    if (( ${#failed[@]} ))
     then
+        print-bad "Commands unavailable: $(yellow "${failed[*]}")." \
+                "Please install it to use this script."
         die "Some dependencies are not met. Exiting."
     fi
 }

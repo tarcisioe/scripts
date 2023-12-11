@@ -37,5 +37,25 @@ choose() {
 
 
 bool() {
+    # Make a command return value into a boolean value.
+    #
+    # Usage: bool COMMAND [ARGUMENTS...]
+
     eval "$@" && printf 1 || printf 0
+}
+
+is-a-shortcut() {
+    # Check if this script is being executed as a shortcut.
+    # This is done by checking if the parent process is a known WM.
+    #
+    # Usage: is-a-shortcut
+
+    local parent
+    parent="$(ps -p"${PPID}" -o comm=)"
+
+    case "$parent" in
+        i3) true && return
+    esac
+
+    false
 }

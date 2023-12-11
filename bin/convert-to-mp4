@@ -26,6 +26,8 @@ convert() {
 main() (
     set -e
 
+    check-dependencies
+
     local options
     options=$(getopt -o c:,h -l crf:,help -- "$@")
     eval set -- "$options"
@@ -54,5 +56,5 @@ main() (
 )
 
 
-check-dependencies ffmpeg
+depend ffmpeg
 main "$@"

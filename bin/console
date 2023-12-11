@@ -85,6 +85,8 @@ console() {
 main() (
     set -e
 
+    check-dependencies
+
     local options
     options=$(getopt -o h -l help -- "$@")
     eval set -- "$options"
@@ -104,5 +106,5 @@ main() (
 )
 
 
-check-dependencies xprop
+depend xprop
 wrap-shortcut main "$@"

@@ -6,5 +6,7 @@ require dependencies
 require notify
 
 
-check-dependencies cleese
+depend cleese
+check-dependencies
+
 wrap-shortcut cleese playlist | grep -C 5 -- '->'

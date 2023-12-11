@@ -24,6 +24,8 @@ playlink() {
 main() (
     set -e
 
+    check-dependencies
+
     local options
     options=$(getopt -o h -l help -- "$@")
     eval set -- "$options"
@@ -43,5 +45,5 @@ main() (
 )
 
 
-check-dependencies mpv
+depend mpv
 main "$@"

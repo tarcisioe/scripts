@@ -23,6 +23,8 @@ send-pasters() {
 
 
 main() {
+    check-dependencies
+
     local file="${1:-/dev/stdin}"
 
     [[ -f "${file}" ]] ||
@@ -34,5 +36,5 @@ main() {
 }
 
 
-check-dependencies file curl
+depend file curl
 main "$@"

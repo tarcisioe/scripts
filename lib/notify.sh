@@ -1,10 +1,6 @@
-require catch-outputs
 require dependencies
 
-
-user-login-shell() {
-    getent passwd "${LOGNAME}" | cut -d: -f7
-}
+depend notify-send
 
 
 send-notification() {
@@ -14,10 +10,9 @@ send-notification() {
     #
     # Positional arguments:
     #     TEXT       Text to show in the notification.
+    #     URGENCY    Urgency of the notification (low, normal, critical).
     #     DURATION   (Optional) How much time to show the notification for.
     #                In ms. If omitted, defaults to 1000.
-    #
-    check-dependencies notify-send
 
     local text="${1}"
     local urgency="${2:-normal}"
@@ -27,42 +22,16 @@ send-notification() {
 }
 
 
-is-a-shortcut() {
-    # Check if this script is being executed as a shortcut.
-    # This is done by checking if the parent process is a known WM.
+stdin-to-notification() (
+    # Forward the received stdin to a notification.
     #
-    # Usage: is parent a shell
-
-    local parent
-    parent="$(ps -p"${PPID}" -o comm=)"
-
-    case "$parent" in
-        i3) true && return
-    esac
-
-    false
-}
-
-
-capture-retval() {
-    # Check if the parent process is the user's login shell or a known shell.
-    #
-    # Usage: capture-retval VARIABLE COMMAND [ARGUMENTS...]
+    # Usage: send-notification [URGENCY] [DURATION]
     #
     # Positional arguments:
-    #     VARIABLE    The variable name to put the return value in.
-    #     COMMAND     The command to run.
-    #     ARGUMENTS   The arguments for the command that should be executed.
+    #     URGENCY    Urgency of the notification (low, normal, critical).
+    #     DURATION   (Optional) How much time to show the notification for.
+    #                In ms. If omitted, defaults to 1000.
 
-    local -n out="${1}"
-
-    "${@:2}" &&
-        out=0 ||
-        out="${?}"
-}
-
-
-stdin-to-notification() (
     local urgency="${1:-normal}"
     local duration="${2:-1000}"
 
@@ -75,24 +44,30 @@ stdin-to-notification() (
 
 
 stderr-to-notifications() {
-    local ret
+    # Execute a command and forward its stderr as a critical notification.
+    #
+    # Usage: stderr-to-notification COMMAND [ARGUMENTS...]
 
-    capture-retval ret "$@" 2> >(stdin-to-notification critical)
-
-    return "${ret}"
+    "$@" 2> >(stdin-to-notification critical)
 }
 
 
 output-to-notifications() {
-    local ret
+    # Execute a command and forward its stdout as a notification and its
+    # stderr as a critical notification.
+    #
+    # Usage: stderr-to-notification COMMAND [ARGUMENTS...]
 
-    capture-retval ret stderr-to-notifications "$@" > >(stdin-to-notification)
-
-    return "${ret}"
+    stderr-to-notifications "$@" > >(stdin-to-notification)
 }
 
 
 wrap-shortcut-stderr() {
+    # Execute a command and forward its stderr to a notification if running
+    # as a shortcut.
+    #
+    # Usage: stderr-to-notification COMMAND [ARGUMENTS...]
+
     if ! is-a-shortcut
     then
         "$@"
@@ -104,6 +79,11 @@ wrap-shortcut-stderr() {
 
 
 wrap-shortcut() {
+    # Execute a command and forward its outputs to notifications if running
+    # as a shortcut.
+    #
+    # Usage: stderr-to-notification COMMAND [ARGUMENTS...]
+
     if ! is-a-shortcut
     then
         "$@"

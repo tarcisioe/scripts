@@ -1,6 +1,6 @@
 require dependencies
 
-check-dependencies xclip
+depend xclip
 
 
 set-clipboard() {

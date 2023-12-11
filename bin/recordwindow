@@ -97,6 +97,8 @@ recordwindow() (
 main() (
     set -e
 
+    check-dependencies
+
     local audio=0
 
     local options
@@ -121,5 +123,5 @@ main() (
 )
 
 
-check-dependencies ffmpeg slop xclip
+depend ffmpeg slop xclip
 wrap-shortcut main "$@"
