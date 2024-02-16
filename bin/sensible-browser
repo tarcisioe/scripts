@@ -18,7 +18,7 @@ require notify
 find-browser() {
     local found
 
-    found="$(first-of "$@")" &&
+    found="$(first-command-of "$@")" &&
         echo "${found}" ||
         {
             log "No sensible browser found." &&

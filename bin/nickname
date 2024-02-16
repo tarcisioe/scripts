@@ -4,23 +4,16 @@ set -euo pipefail
 
 source scriptlib-init
 
-require util
+require main
 
 USER_CONFIG_FILE="${XDG_CONFIG_PATH:-"${HOME}/.config"}/nickname"
 GLOBAL_CONFIG_FILE="/etc/nickname"
 
-
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
+SCRIPTLIB_DESCRIPTION="\
 Show a nickname (not valid in the network) for the machine, or the hostname.
 
-To configure the output for your user write the nickname to "${USER_CONFIG_FILE}".
-To configure the output globally write the nickname to "${GLOBAL_CONFIG_FILE}".
-
-Optional arguments:
-    -h/--help     Print this help message and exit."
-}
+To configure the output for your user write the nickname to ${USER_CONFIG_FILE}.
+To configure the output globally write the nickname to ${GLOBAL_CONFIG_FILE}."
 
 
 nickname() {
@@ -34,25 +27,4 @@ nickname() {
 }
 
 
-main() (
-    set -e
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    nickname
-)
-
-main "$@"
+main nickname "$@"

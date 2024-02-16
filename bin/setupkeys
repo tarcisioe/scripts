@@ -1,61 +1,27 @@
 #!/bin/bash
-set -x
-
 source scriptlib-init
 
 require dependencies
-require util
+require main
 require notify
 
-
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
+SCRIPTLIB_DESCRIPTION="\
 Setup details of the keyboard on X:
 - Swap caps and ctrl.
 - Disable the physical esc key.
-- Make a short tap on ctrl an esc.
-
-Optional arguments
-    -h/--help     Print this help message and exit."
-}
+- Make a short tap on ctrl an esc."
 
 
-setupkeys() (
+_setupkeys() (
     set -e
 
     pkill xcape || true
 
     setxkbmap -option "ctrl:swapcaps"
-    xmodmap -e "keycode 9 = apostrophe quotedbl"
     xmodmap -e "keycode 255 = Escape"
     xcape -e 'Control_L=Escape' -t 200
 )
 
 
-main() (
-    set -e
-
-    check-dependencies
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    setupkeys
-)
-
-
 depend setxkbmap xcape xmodmap
-wrap-shortcut main "$@"
+wrap-shortcut main _setupkeys "$@"

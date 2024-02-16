@@ -1,3 +1,17 @@
+command-path() {
+    # Which, but fails silently.
+    #
+    # Usage: command-path [COMMAND]
+    #
+    # Positional arguments:
+    #     COMMAND   Which command to get the path of.
+
+    local command="${1}"
+
+    which "${command}" 2> /dev/null
+}
+
+
 command-available() {
     # Silent which to check if a command is available.
     #
@@ -8,7 +22,7 @@ command-available() {
 
     local command="${1}"
 
-    which "${command}" > /dev/null 2>&1
+    command-path "${command}" > /dev/null
 }
 
 
@@ -67,6 +81,4 @@ function first-file-of {
             return
         fi
     done
-
-    return 1
 }

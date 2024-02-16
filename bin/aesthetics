@@ -3,18 +3,10 @@
 source scriptlib-init
 
 require clipboard
-require dependencies
-require util
+require main
 
 
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-Aestheticize the contents of the clipboard.
-
-Optional arguments:
-    -h/--help    Print this help message and exit."
-}
+SCRIPTLIB_DESCRIPTION="Aestheticize the contents of the clipboard."
 
 
 aesthetics() {
@@ -30,28 +22,5 @@ aesthetics() {
 }
 
 
-main() (
-    set -e
-
-    check-dependencies
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    aesthetics
-)
-
-depend xclip python
-main "$@"
+depend python
+main aesthetics "$@"

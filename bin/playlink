@@ -16,34 +16,10 @@ Optional arguments:
 }
 
 
-playlink() {
+_playlink() {
     mpv "$(xclip -o)" 2> /dev/null & disown
 }
 
 
-main() (
-    set -e
-
-    check-dependencies
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    playlink
-)
-
-
 depend mpv
-main "$@"
+main _playlink "$@"

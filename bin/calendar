@@ -2,26 +2,23 @@
 
 source scriptlib-init
 
-require dependencies
+require main
 require util
 require notify
 
 
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...] [N_MONTHS]
-Show the calendar as a notification.
-
-Optional arguments:
-    -h/--help     Print this help message and exit.
-
-Positional arguments:
-    N_MONTHS   Number of months to show around the current month."
-}
+SCRIPTLIB_ARGS="[N_MONTHS]"
+SCRIPTLIB_DESCRIPTION="Show the calendar as a notification."
 
 
 faketty () (
     # Run a command forcing it to see its output as a tty.
+    #
+    # Usage: faketty [COMMAND] ARGUMENTS...
+    #
+    # Positional arguments:
+    #     COMMAND     The command to execute as if on a tty.
+    #     ARGUMENTS   Arguments to the command.
 
     export TERM=xterm
     script -qfec "$(printf "%q " "$@")" /dev/null
@@ -52,31 +49,9 @@ calendar() {
 }
 
 
-main() (
-    set -e
-
-    check-dependencies
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    let n_months="${1:-1}"
-
-    calendar "${n_months}"
-)
-
-
 depend cal script
-wrap-shortcut main "$@"
+wrap-shortcut main calendar "$@"
+
+
+# The following modeline avoids vim reading this as a "calendar" file.
+# vi: ft=bash

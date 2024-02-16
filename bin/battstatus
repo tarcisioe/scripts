@@ -2,19 +2,12 @@
 
 source scriptlib-init
 
+require main
 require notify
 require path-util
-require util
 
 
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-Show the battery level as a notification.
-
-Optional arguments:
-    -h/--help     Print this help message and exit."
-}
+SCRIPTLIB_DESCRIPTION="Show the battery level as a notification."
 
 
 battery-symbol() {
@@ -45,26 +38,4 @@ battstatus() {
 }
 
 
-main() (
-    set -e
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    battstatus
-)
-
-
-wrap-shortcut main "$@"
+wrap-shortcut main battstatus "$@"

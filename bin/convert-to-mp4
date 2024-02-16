@@ -2,17 +2,16 @@
 
 source scriptlib-init
 
-require clipboard
 require dependencies
-require util
+require main
 
-
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-"
-}
-
+SCRIPTLIB_ARGS="INPUT OUTPUT"
+SCRIPTLIB_DESCRIPTION="Convert a video file to mp4 using libx264."
+SCRIPTLIB_OPT_ARGS="\
+    -c/--crf   Set the CRF (lower is better quality). Default is 27."
+SCRIPTLIB_POS_ARGS="\
+    INPUT    The input file.
+    OUTPUT   The output file."
 
 convert() {
     local input="${1}"
@@ -23,13 +22,11 @@ convert() {
 }
 
 
-main() (
+_convert-to-mp4() (
     set -e
 
-    check-dependencies
-
     local options
-    options=$(getopt -o c:,h -l crf:,help -- "$@")
+    options=$(getopt -o c: -l crf: -- "$@")
     eval set -- "$options"
 
     local crf=27
@@ -39,9 +36,6 @@ main() (
             -c|--crf)
                 crf="${2}"
                 shift
-                ;;
-            -h|--help)
-                usage && exit 0
                 ;;
             --) shift ;&
             *) break ;;
@@ -57,4 +51,4 @@ main() (
 
 
 depend ffmpeg
-main "$@"
+main _convert-to-mp4 "$@"

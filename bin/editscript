@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+source scriptlib-init
+
+require main
+require path-util
+require ui
+
+SCRIPTLIB_ARGS="SCRIPT_NAME"
+SCRIPTLIB_DESCRIPTION="Edit a script."
+
+
+editscript() {
+    local script="${1}"
+    local script_path
+
+    script_path="$(command-path "${script}")" ||
+        die "No executable \"${script}\" in path."
+
+    exec $EDITOR "${script_path}"
+}
+
+
+main editscript "$@"

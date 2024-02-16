@@ -43,7 +43,7 @@ togglekbd() (
 main() (
     set -e
 
-    check-depedencies
+    check-dependencies
 
     local options
     options=$(getopt -o h -l help -- "$@")

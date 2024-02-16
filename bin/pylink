@@ -3,26 +3,26 @@
 source scriptlib-init
 
 require ui
+require main
+
+SCRIPTLIB_ARGS="[EXE_NAME]"
+
+SCRIPTLIB_DESCRIPTION="\
+Link an executable from the current virtualenv to ~/.local/bin.
+Useful for linking development versions of executables to be used session-wide."
+
+SCRIPTLIB_POS_ARGS="\
+    EXE_NAME   the name of the executable to link."
 
 
 VIRTUAL_ENV="${VIRTUAL_ENV:-${PWD}/.venv}"
 
 
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...] [EXE_NAME]
-Link an executable from the current virtualenv to ~/.local/bin.
-Useful for linking development versions of executables to be used session-wide.
+_pylink() {
+    local bin_path="${1:-}"
 
-Optional arguments:
-    -h/--help     Print this help message and exit.
+    [[ -n "${bin_path}" ]] || die-usage "Missing EXE_NAME argument."
 
-Positional arguments:
-    EXE_NAME   the name of the executable to link."
-}
-
-
-pylink() {
     local bin_path="${VIRTUAL_ENV}/bin/$1"
 
     [[ -e "${bin_path}" ]] || die "File '${bin_path}' does not exist"
@@ -31,30 +31,4 @@ pylink() {
 }
 
 
-main() (
-    set -e
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    local bin_path="${1:-}"
-
-    [[ -n "${bin_path}" ]] || die-usage "Missing EXE_NAME argument."
-
-    pylink "${bin_path}"
-)
-
-
-main "$@"
+main _pylink "$@"

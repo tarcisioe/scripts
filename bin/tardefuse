@@ -2,22 +2,17 @@
 
 source scriptlib-init
 
+require main
 require ui
-require util
 
+SCRIPTLIB_ARGS="[TAR_FILE]"
 
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...] [TAR_FILE]
+SCRIPTLIB_INIT="\
 Defuse a possible tarbomb: create a directory for its contents if it contains
-more than one directory or file at top level.
+more than one directory or file at top level."
 
-Optional arguments:
-    -h/--help     Print this help message and exit.
-
-Positional arguments:
+SCRIPTLIB_POS_ARGS="\
     TAR_FILE   Path to the suspected tarbomb."
-}
 
 
 tar-basename() {
@@ -77,7 +72,7 @@ get-output-directory() {
 }
 
 
-tardefuse() {
+_tardefuse() {
     # Defuse a tarbomb.
     #
     # Usage: tardefuse TAR_FILE
@@ -85,7 +80,10 @@ tardefuse() {
     # Positional arguments:
     #     TAR_FILE   Path to the .tar.* file.
 
-    local tar_file
+    local tar_file="${1:-}"
+
+    [[ -n "${tar_file}" ]] || die-usage "Missing a file to extract."
+
     tar_file="$(readlink -f $1)"
 
     [[ -f "${tar_file}" ]] || die "File "${tar_file}" not found."
@@ -98,28 +96,4 @@ tardefuse() {
 }
 
 
-main() (
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    local tar_file="${1:-}"
-
-    [[ -n "${tar_file}" ]] || die-usage "Missing a file to extract."
-
-    tardefuse "${tar_file}"
-)
-
-
-main "$@"
+main _tardefuse "$@"

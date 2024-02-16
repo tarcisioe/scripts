@@ -44,6 +44,7 @@ bool() {
     eval "$@" && printf 1 || printf 0
 }
 
+
 is-a-shortcut() {
     # Check if this script is being executed as a shortcut.
     # This is done by checking if the parent process is a known WM.

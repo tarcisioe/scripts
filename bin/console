@@ -3,21 +3,13 @@
 source scriptlib-init
 
 require dependencies
-require util
+require main
 require notify
 
 TERMINAL="${TERMINAL:-urxvt}"
 WINNAME="terminal-console"
 
-
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-Spawn, hide or show a console in the corner of the screen.
-
-Optional arguments:
-    -h/--help     Print this help message and exit."
-}
+SCRIPTLIB_DESCRIPTION="Spawn, hide or show a console in the corner of the screen."
 
 
 spawn-console() {
@@ -82,29 +74,5 @@ console() {
 }
 
 
-main() (
-    set -e
-
-    check-dependencies
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    console
-)
-
-
 depend xprop
-wrap-shortcut main "$@"
+wrap-shortcut main console "$@"
