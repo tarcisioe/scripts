@@ -35,7 +35,7 @@ ascii-escape-to-pango() {
 }
 
 
-calendar() {
+_calendar() {
     # Show the calendar through a notification.
     #
     # Usage: calendar N_MONTHS
@@ -45,12 +45,12 @@ calendar() {
 
     local n_months="${1:-1}"
 
-    faketty cal -n "${n_months}" -S | ascii-escape-to-pango
+    faketty cal -s -n "${n_months}" -S | ascii-escape-to-pango
 }
 
 
 depend cal script
-wrap-shortcut main calendar "$@"
+wrap-shortcut main _calendar "$@"
 
 
 # The following modeline avoids vim reading this as a "calendar" file.

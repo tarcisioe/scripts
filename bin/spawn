@@ -2,46 +2,15 @@
 
 source scriptlib-init
 
-require util
+require main
 
-TERMINAL="${TERMINAL:-st}"
+SCRIPTLIB_DESCRIPTION="Spawn a new terminal in the current working directory."
 
 
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-Spawn a new terminal in the current working directory.
-
-Optional arguments:
-    -h/--help     Print this help message and exit."
+_spawn() {
+    local terminal="${TERMINAL:-sensible-terminal}"
+    exec "${TERMINAL}" 2> /dev/null & disown
 }
 
 
-spawn() {
-    "${TERMINAL}" 2> /dev/null & disown
-}
-
-
-main() (
-    set -e
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    spawn
-)
-
-
-main "$@"
+main _spawn "$@"

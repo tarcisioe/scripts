@@ -33,7 +33,7 @@ usage() {
 }
 
 
-main() (
+main() {
     set -e
 
     check-dependencies
@@ -57,4 +57,4 @@ main() (
     done
 
     "$f" "$@"
-)
+}

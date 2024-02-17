@@ -9,7 +9,7 @@ require main
 SCRIPTLIB_DESCRIPTION="Aestheticize the contents of the clipboard."
 
 
-aesthetics() {
+_aesthetics() {
     # Add spaces between the characters of the text contained in the clipboard.
 
     local text
@@ -23,4 +23,4 @@ aesthetics() {
 
 
 depend python
-main aesthetics "$@"
+main _aesthetics "$@"

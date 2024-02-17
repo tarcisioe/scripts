@@ -5,6 +5,7 @@ source scriptlib-init
 require dependencies
 require util
 require notify
+require main
 
 SSHOT_DIR="${HOME}/.screenshots"
 
@@ -114,7 +115,7 @@ save-or-clip() {
 }
 
 
-sshot() {
+take-screenshot() {
     # Takes a screenshot of the whole screen or a region, and saves it or sends
     # it to the clipboard .
     #
@@ -140,18 +141,16 @@ sshot() {
 }
 
 
-main() (
+_sshot() {
     set -e
 
-    check-dependencies
+    local options
+    options=$(getopt -o hscf -l select,clipboard,file-uri -- "$@")
+    eval set -- "$options"
 
     local select=0;
     local clipboard=0;
     local file_uri=0;
-
-    local options
-    options=$(getopt -o hscf -l help,select,clipboard,file-uri -- "$@")
-    eval set -- "$options"
 
     while true; do
         case "$1" in
@@ -173,12 +172,12 @@ main() (
         shift
     done
 
-    { [[ "${file_uri}" == 1 ]] && [[ "${clipboard}" == 0 ]]; } &&
+    { [[ "${file_uri}" == 1 ]] && [[ "${clipboard}" == 0 ]] } &&
         die "Option file-uri can only be used with clipboard."
 
-    sshot "${select}" "${clipboard}" "${file_uri}"
-)
+    take-screenshot "${select}" "${clipboard}" "${file_uri}"
+}
 
 
 depend maim xclip
-wrap-shortcut main "$@"
+wrap-shortcut _sshot "$@"

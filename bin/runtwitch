@@ -5,14 +5,7 @@ source scriptlib-init
 require util
 
 
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-Play a Twitch stream (handle is fetched with dmenu).
-
-Optional arguments:
-    -h/--help    Print this help message and exit."
-}
+SCRIPTLIB_DESCRIPTION="Play a Twitch stream (handle is fetched with dmenu)."
 
 
 get-stream-handle() {
@@ -20,31 +13,9 @@ get-stream-handle() {
 }
 
 
-runtwitch() {
+_runtwitch() {
     playlink "https://twitch.tv/$(get-stream-handle)"
 }
 
 
-main() (
-    set -e
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    runtwitch
-)
-
-
-main "$@"
+main _runtwitch "$@"

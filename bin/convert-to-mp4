@@ -13,6 +13,7 @@ SCRIPTLIB_POS_ARGS="\
     INPUT    The input file.
     OUTPUT   The output file."
 
+
 convert() {
     local input="${1}"
     local output="${2}"

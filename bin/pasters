@@ -4,6 +4,11 @@ source scriptlib-init
 
 require dependencies
 require ui
+require main
+
+
+SCRIPTLIB_ARGS="FILE"
+SCRIPTLIB_DESCRIPTION="Send a file to paste.rs."
 
 
 mimetype() {
@@ -18,11 +23,11 @@ mimetype() {
 send-pasters() {
     local file="${1}"
 
-    curl --data-binary @"${file}" https://paste.rs
+    curl --data-binary @"${file}" "https://paste.rs"
 }
 
 
-main() {
+_pasters() {
     check-dependencies
 
     local file="${1:-/dev/stdin}"
@@ -37,4 +42,4 @@ main() {
 
 
 depend file curl
-main "$@"
+main _pasters "$@"

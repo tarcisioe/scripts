@@ -16,7 +16,7 @@ To configure the output for your user write the nickname to ${USER_CONFIG_FILE}.
 To configure the output globally write the nickname to ${GLOBAL_CONFIG_FILE}."
 
 
-nickname() {
+_nickname() {
     # Echo the user-defined nickname, the global nickname, or the real hostname.
     # They are looked up in that order. Search stops when any of them is found.
 
@@ -27,4 +27,4 @@ nickname() {
 }
 
 
-main nickname "$@"
+main _nickname "$@"

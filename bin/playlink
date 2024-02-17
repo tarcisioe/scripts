@@ -6,14 +6,7 @@ require dependencies
 require util
 
 
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-Play the link on the clipboard with mpv.
-
-Optional arguments:
-    -h/--help    Print this help message and exit."
-}
+SCRIPTLIB_DESCRIPTION="Play the link on the clipboard with mpv."
 
 
 _playlink() {

@@ -2,11 +2,14 @@
 
 source scriptlib-init
 
-require dependencies
 require notify
+require main
+
+
+_showplaylist() {
+    cleese playlist | grep -C 5 -- '->'
+}
 
 
 depend cleese
-check-dependencies
-
-wrap-shortcut cleese playlist | grep -C 5 -- '->'
+wrap-shortcut main _showplaylist

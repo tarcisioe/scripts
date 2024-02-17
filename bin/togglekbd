@@ -4,17 +4,9 @@ source scriptlib-init
 require dependencies
 require util
 require notify
+require main
 
-
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-Toggle the keyboard layout in use (dvorak-mod <-> abnt2).
-
-Optional arguments:
-    -h/--help     Print this help message and exit."
-}
-
+SCRIPTLIB_DESCRIPTION="Toggle the keyboard layout in use (dvorak-mod <-> abnt2)."
 
 togglekbd() (
     set -e
@@ -39,30 +31,5 @@ togglekbd() (
     setupkeys
 )
 
-
-main() (
-    set -e
-
-    check-dependencies
-
-    local options
-    options=$(getopt -o h -l help -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
-            --) shift ;&
-            *) break ;;
-        esac
-        shift
-    done
-
-    togglekbd
-)
-
-
 depend setxkbmap
-wrap-shortcut main "$@"
+wrap-shortcut main togglekbd "$@"

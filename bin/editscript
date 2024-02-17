@@ -10,7 +10,7 @@ SCRIPTLIB_ARGS="SCRIPT_NAME"
 SCRIPTLIB_DESCRIPTION="Edit a script."
 
 
-editscript() {
+_editscript() {
     local script="${1}"
     local script_path
 
@@ -21,4 +21,4 @@ editscript() {
 }
 
 
-main editscript "$@"
+main _editscript "$@"

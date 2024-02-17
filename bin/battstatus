@@ -24,7 +24,7 @@ battery-symbol() {
 }
 
 
-battstatus() {
+_battstatus() {
     local batt
     batt=$(<$(first-file-of /sys/class/power_supply/BAT?/capacity))
 
@@ -38,4 +38,4 @@ battstatus() {
 }
 
 
-wrap-shortcut main battstatus "$@"
+wrap-shortcut main _battstatus "$@"

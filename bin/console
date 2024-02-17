@@ -6,7 +6,7 @@ require dependencies
 require main
 require notify
 
-TERMINAL="${TERMINAL:-urxvt}"
+TERMINAL="${TERMINAL:-sensible-browser}"
 WINNAME="terminal-console"
 
 SCRIPTLIB_DESCRIPTION="Spawn, hide or show a console in the corner of the screen."
@@ -69,10 +69,10 @@ spawn-show-or-hide() {
 }
 
 
-console() {
+_console() {
     spawn-show-or-hide "${WINNAME}" spawn-console
 }
 
 
 depend xprop
-wrap-shortcut main console "$@"
+wrap-shortcut main _console "$@"
