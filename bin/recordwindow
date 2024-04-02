@@ -3,8 +3,8 @@
 source scriptlib-init
 
 require dependencies
-require util
 require notify
+require main
 
 OUTPUT="/tmp/output.mp4"
 PIDFILE="/tmp/vshot.pid"
@@ -40,7 +40,7 @@ stop-capture-if-active() {
 }
 
 
-start-record() (
+start-recording() (
     # Starts capturing a region.
     #
     # Usage: start-record AUDIO X Y W H
@@ -71,7 +71,7 @@ start-record() (
 )
 
 
-recordwindow() (
+start-or-stop-recording() (
     # Starts or stops capturing a region.
     #
     # Usage: recordwindow AUDIO
@@ -90,26 +90,19 @@ recordwindow() (
     slop_output="$(slop -f "%x %y %w %h")"
     read -r x y w h g <<< "${slop_output}"
 
-    start-record "${audio}" "${x}" "${y}" "${w}" "${h}"
+    start-recording "${audio}" "${x}" "${y}" "${w}" "${h}"
 )
 
 
-main() (
+_recordwindow() {
     set -e
 
     check-dependencies
 
     local audio=0
 
-    local options
-    options=$(getopt -o ha -l audio -- "$@")
-    eval set -- "$options"
-
     while true; do
-        case "$1" in
-            -h|--help)
-                usage && exit 0
-                ;;
+        case "${1:-}" in
             -a|--audio)
                 audio=1
                 ;;
@@ -119,9 +112,9 @@ main() (
         shift
     done
 
-    recordwindow "${audio}"
-)
+    start-or-stop-recording "${audio}"
+}
 
 
 depend ffmpeg slop xclip
-wrap-shortcut main "$@"
+wrap-shortcut main-with-opts "a" "audio" _recordwindow "$@"

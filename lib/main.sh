@@ -33,20 +33,21 @@ usage() {
 }
 
 
-main() {
+main-with-opts() {
     set -e
 
     check-dependencies
 
-    local f="${1}"
-    shift
+    local short="${1}"
+    local long="${2}"
+    local f="${3}"
 
     local options
-    options=$(getopt -o h -l help -- "$@")
+    options=$(getopt -o h"${short}" -l help,"${long}" -- "${@:4}")
     eval set -- "$options"
 
     while true; do
-        case "$1" in
+        case "${1:-}" in
             -h|--help)
                 usage && exit 0
                 ;;
@@ -57,4 +58,8 @@ main() {
     done
 
     "$f" "$@"
+}
+
+main() {
+    main-with-opts "" "" "$@"
 }

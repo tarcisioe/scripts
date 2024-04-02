@@ -50,16 +50,21 @@ What we see here is the following:
   uppercase variables are constants, and use them very sparingly to avoid
   conflicts with environment variables, or variables used by `bash`.
 
+
 ### The `main` function
 
-Every script has a `main` function. This is __not__ needed in a shellscript,
-but I like it. In most cases the `main` function does only two things:
+Every script has a main function, although they are usually named after the
+script itself, with a leading underscore. The function called `main` that is
+available in `lib/main.sh` handles showing a usage message and doing argument
+parsing before forwarding it to the script-specific function. This is __not__
+needed in a shellscript, since the main code could be in the outer scope, but I
+like it. In most cases the main function does only two things:
 
-* Parse the command line arguments;
+* Process the parsed command line arguments;
 * Call a function which actually does the work, with "digested" arguments.
 
-I use `getopt` for parsing arguments since it easily accepts short and long
-arguments.
+I use `getopt` internally for parsing arguments since it easily accepts short
+and long arguments.
 
 
 ### Every other function

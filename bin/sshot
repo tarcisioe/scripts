@@ -9,18 +9,11 @@ require main
 
 SSHOT_DIR="${HOME}/.screenshots"
 
-
-usage() {
-echo "\
-Usage: $(script-name) [OPTION...]
-Take a screenshot and either save it or copy it to clipboard.
-
-Optional arguments:
+SCRIPTLIB_DESCRIPTION="Take a screenshot and either save it or copy it to clipboard."
+SCRIPTLIB_OPT_ARGS="\
     -c/--clipboard   Copy screenshot to clipboard.
-    -h/--help        Print this help message and exit.
     -s/--select      Enable region selection.
     -f/--file-uri    Use file-uri to copy instead of copying the image buffer."
-}
 
 
 get-save-path() {
@@ -144,19 +137,15 @@ take-screenshot() {
 _sshot() {
     set -e
 
-    local options
-    options=$(getopt -o hscf -l select,clipboard,file-uri -- "$@")
-    eval set -- "$options"
-
     local select=0;
     local clipboard=0;
     local file_uri=0;
 
     while true; do
-        case "$1" in
+        case "${1:-}" in
             -h|--help)
                 usage && exit 0
-                ;;
+               ;;
             -s|--select)
                 select=1
                 ;;
@@ -180,4 +169,4 @@ _sshot() {
 
 
 depend maim xclip
-wrap-shortcut _sshot "$@"
+wrap-shortcut main-with-opts scf select,clipboard,file-uri _sshot "$@"

@@ -1,7 +1,7 @@
 path-to-script() {
     # Get the path of the outermost script calling this function.
 
-    echo "$(readlink -f "${BASH_SOURCE[-1]}")"
+    readlink -f "${BASH_SOURCE[-1]}"
 }
 
 
@@ -9,7 +9,7 @@ script-name() {
     # Get the name of the outermost script calling this function.
     # Usually useful for usages.
 
-    echo "$(basename "${BASH_SOURCE[-1]}")"
+    basename "${BASH_SOURCE[-1]}"
 }
 
 

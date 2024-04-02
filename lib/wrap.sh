@@ -13,7 +13,7 @@ get-wrapped-command() {
         if [[ "$(readlink -f "$option")" != "$script" ]]
         then
             echo "$option"
-            break
+            return
         fi
     done
 
@@ -32,7 +32,8 @@ wrap() {
     #     COMMAND_ARGS   Arguments to be passed to the first command with the
     #                    same name as the calling script that `which` finds.
 
-    local command="$(get-wrapped-command)" || return 1
+    local command
+    command="$(get-wrapped-command)" || return 1
     exec "${command}" "$@"
 }
 

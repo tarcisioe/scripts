@@ -26,14 +26,10 @@ convert() {
 _convert-to-mp4() (
     set -e
 
-    local options
-    options=$(getopt -o c: -l crf: -- "$@")
-    eval set -- "$options"
-
     local crf=27
 
     while true; do
-        case "$1" in
+        case "${1:-}" in
             -c|--crf)
                 crf="${2}"
                 shift
@@ -44,12 +40,15 @@ _convert-to-mp4() (
         shift
     done
 
-    local input="${1}"
-    local output="${2}"
+    local input="${1:-}"
+    local output="${2:-}"
+
+    [[ -n "${input}" ]] || die-usage "Missing input."
+    [[ -n "${output}" ]] || die-usage "Missing output."
 
     convert "${input}" "${output}" "${crf}"
 )
 
 
 depend ffmpeg
-main _convert-to-mp4 "$@"
+main-with-opts "c:" "crf:" _convert-to-mp4 "$@"
