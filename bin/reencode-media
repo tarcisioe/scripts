@@ -1,0 +1,68 @@
+#!/bin/bash
+source scriptlib-init
+
+require convert
+require main
+
+
+function split() {
+    local varname="${1}"
+    local value="${2}"
+
+    IFS=',' read -r -a "${varname}" <<< "${value}"
+}
+
+function _make-find-args() {
+    local varname="${1}"
+    local extensions="${2}"
+
+    local -n output="${varname}"
+
+    local extension_array
+    split extension_array "${extensions}"
+
+    output=( "-iname" '*.'"${extension_array[0]}" )
+
+    for ext in "${extension_array[@]:1}"
+    do
+        output+=( "-o" "-iname" '*.'"${ext}" )
+    done
+}
+
+
+function run-at() {
+    local directory="${1}"
+    local oldpwd="${PWD}"
+    cd "${directory}"
+    "${@:2}"
+    cd "${oldpwd}"
+}
+
+
+function list-relative() {
+    local basedir="${1}"
+    local extensions="${2}"
+
+    local find_args
+    _make-find-args find_args "${extensions}"
+
+    run-at "${basedir}" find . -type f \( "${find_args[@]}" \) | sort
+}
+
+
+_reencode-media() {
+    local srcdir="${1}"
+    local destdir="${2}"
+    local in_extensions="${3}"
+    local out_extension="${4}"
+    shift 4
+
+    local logfile="${destdir}/ffmpeg_log"
+
+    list-relative "${srcdir}" "${in_extensions}" | convert-files "${srcdir}" "${destdir}" "${out_extension}" "${logfile}" "${@}" &&
+        rm "${logfile}"
+}
+
+
+depend ffmpeg
+main _reencode-media "$@"
