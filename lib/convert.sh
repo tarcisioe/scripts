@@ -38,7 +38,7 @@ function run-ffmpeg() {
     $ffmpeg_killed && return 1
 
     trap - INT
-    unfunction handle-termination
+    unset -f handle-termination
 
     return 0
 }
