@@ -60,6 +60,7 @@ main-with-opts() {
     "$f" "$@"
 }
 
+
 main() {
     main-with-opts "" "" "$@"
 }

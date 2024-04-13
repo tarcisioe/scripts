@@ -4,8 +4,19 @@ source scriptlib-init
 require convert
 require main
 
+SCRIPTLIB_DESCRIPTION="Reencode media files from one folder into another, keeping the directory structure."
+SCRIPTLIB_ARGS="SRCDIR DESTDIR IN_EXTENSIONS OUT_EXTENSION -- FFMPEG_ARGS"
+SCRIPTLIB_OPT_ARGS="\
+    -p/--parallel N   Encode multiple files in parallel using N jobs."
+SCRIPTLIB_POS_ARGS="\
+    SRCDIR          The source directory
+    DESTDIR         The destination directory.
+    IN_EXTENSIONS   A comma separated list of extensions to search for.
+    OUT_EXTENSION   The extension to use for the output file.
+    FFMPEG_ARGS     Flags for performing the conversion with ffmpeg."
 
-function split() {
+
+function split-string() {
     local varname="${1}"
     local value="${2}"
 
@@ -19,7 +30,7 @@ function _make-find-args() {
     local -n output="${varname}"
 
     local extension_array
-    split extension_array "${extensions}"
+    split-string extension_array "${extensions}"
 
     output=( "-iname" '*.'"${extension_array[0]}" )
 
@@ -64,5 +75,68 @@ _reencode-media() {
 }
 
 
-depend ffmpeg
-main _reencode-media "$@"
+_reencode-media-parallel() {
+    local n_proc="${1}"
+    local srcdir="${2}"
+    local destdir="${3}"
+    local in_extensions="${4}"
+    local out_extension="${5}"
+    shift 5
+
+    local logfile_base="${destdir}/ffmpeg_log"
+
+    local tmpdir
+    tmpdir="$(mktemp -d --tmpdir reencode-media.XXX)"
+
+    list-relative "${srcdir}" "${in_extensions}" |
+        split --numeric-suffixes=1 -n l/"${n_proc}" - "${tmpdir}/files"
+
+    function cleanup() {
+        local retcode="${1:-0}"
+
+        kill 0
+        rm -rf "${tmpdir}"
+        exit "${retcode}"
+    }
+
+    trap 'cleanup 1' SIGINT
+
+    for i in $(seq -f '%02g' "${n_proc}")
+    do
+        local logfile="${logfile_base}${i}"
+        (
+            {
+                cat "${tmpdir}/files${i}" |
+                    convert-files "${srcdir}" "${destdir}" "${out_extension}" "${logfile}" "${@}"
+            } &&
+                rm -f "${logfile}"
+        ) &
+    done
+    wait
+
+    cleanup
+}
+
+
+_main() {
+    local n_proc=1
+
+    while true; do
+        case "${1:-}" in
+            -p|--parallel)
+                n_proc="${2}"
+                shift
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    [[ "${n_proc}" -lt 1 ]] && die "Number of processes must be greater than or equal to 1."
+    [[ "${n_proc}" == 1 ]] && { _reencode-media "${@}"; exit; }
+    [[ "${n_proc}" -gt 1 ]] && { _reencode-media-parallel "${n_proc}" "${@}"; exit; }
+}
+
+
+main-with-opts 'p:' 'parallel:' _main "${@}"

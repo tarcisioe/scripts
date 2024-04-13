@@ -114,7 +114,7 @@ function _reencode-if-incomplete() {
     run-ffmpeg -i "${input}" "${@}" "${output}" 2> "${logfile}" &&
         {
             _clear-incomplete-marker "${output}" &&
-                log-with-date "Finished reencoding ${output}, clearing " \
+                log-with-date "Finished reencoding ${output}, clearing" \
                     "incomplete marker."
         } ||
         return 1
