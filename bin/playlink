@@ -2,17 +2,18 @@
 
 source scriptlib-init
 
+require clipboard
 require dependencies
-require util
-
+require notify
+require main
 
 SCRIPTLIB_DESCRIPTION="Play the link on the clipboard with mpv."
 
 
 _playlink() {
-    mpv "$(xclip -o)" 2> /dev/null & disown
+    mpv "$(get-clipboard)" 2> /dev/null & disown
 }
 
 
 depend mpv
-main _playlink "$@"
+wrap-shortcut main _playlink "$@"

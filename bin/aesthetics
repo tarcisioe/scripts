@@ -3,6 +3,7 @@
 source scriptlib-init
 
 require clipboard
+require notify
 require main
 
 
@@ -12,15 +13,11 @@ SCRIPTLIB_DESCRIPTION="Aestheticize the contents of the clipboard."
 _aesthetics() {
     # Add spaces between the characters of the text contained in the clipboard.
 
-    local text
-    text="$(xclip -o)"
-
-    local aestheticised
-    aestheticised=$(python -c "print(' '.join('${text}'))")
-
-    set-clipboard "${aestheticised}"
+    get-clipboard |
+        python -c 'i=input();import re;print(re.sub(".(?!$)", r"\g<0> ", i))' |
+        set-clipboard-from-stdin
 }
 
 
 depend python
-main _aesthetics "$@"
+wrap-shortcut main _aesthetics "$@"

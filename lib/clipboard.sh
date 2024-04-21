@@ -2,8 +2,12 @@ require compat
 require dependencies
 
 
-function _use_xclip() {
+function _use-xclip() {
     depend xclip
+
+    function get-clipboard() {
+        xclip -o
+    }
 
     function set-clipboard-from-stdin() {
         # Set the clipboard with contents from stdin on X with xclip.
@@ -31,8 +35,12 @@ function _use_xclip() {
     }
 }
 
-function _use_wl_copy() {
-    depend wl-copy
+function _use-wl-copy() {
+    depend wl-copy wl-paste
+
+    function get-clipboard() {
+        wl-paste
+    }
 
     function set-clipboard-from-stdin() {
         # Set the clipboard with contents from stdin on Wayland with wl-copy.
@@ -61,8 +69,8 @@ function _use_wl_copy() {
 }
 
 x11-or-wayland \
-    _use_xclip \
-    _use_wl_copy
+    _use-xclip \
+    _use-wl-copy
 
 set-clipboard() {
     # Set the 'clipboard' and 'primary' clipboards to some text.
