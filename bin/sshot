@@ -126,10 +126,13 @@ function _use-maim() {
         local select="${1}"
         local file="${2}"
 
-        local select_flag
-        select_flag="$(choose "${select}" "-sB" "")"
+        local select_flags=()
 
-        maim -ou "${select_flag}" "${file}"
+        [[ "${select}" == 1 ]] && {
+            select_flags=( -sB )
+        }
+
+        maim -ou "${select_flags[@]}" "${file}"
     }
 }
 
@@ -187,7 +190,7 @@ take-screenshot() {
     local tmp
     tmp="$(mktemp --suffix=.png)" &&
 
-    grab-screenshot ${select} "${tmp}" &&
+    grab-screenshot "${select}" "${tmp}" &&
     save-or-clip "${clipboard}" "${file_uri}" "${tmp}" "${SSHOT_DIR}"
 }
 
