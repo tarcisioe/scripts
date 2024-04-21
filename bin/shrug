@@ -3,7 +3,13 @@
 source scriptlib-init
 
 require clipboard
+require main
 require notify
 
 
-wrap-shortcut set-clipboard '¯\_(ツ)_/¯'
+function _shrug() {
+    set-clipboard '¯\_(ツ)_/¯'
+}
+
+
+wrap-shortcut main shrug "$@"

@@ -3,7 +3,13 @@
 source scriptlib-init
 
 require clipboard
+require main
 require notify
 
 
-wrap-shortcut set-clipboard '( ͡° ͜ʖ ͡°)'
+function _lennyface() {
+    set-clipboard '( ͡° ͜ʖ ͡°)'
+}
+
+
+wrap-shortcut main lennyface "${@}"
