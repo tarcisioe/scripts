@@ -55,8 +55,9 @@ is-a-shortcut() {
     parent="$(ps -p"${PPID}" -o comm=)"
 
     case "$parent" in
-        i3) true && return
+        systemd) return 0 ;;
+        i3) return 0 ;;
     esac
 
-    false
+    return 1
 }

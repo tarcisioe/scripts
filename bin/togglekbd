@@ -1,35 +1,51 @@
 #!/bin/bash
 source scriptlib-init
 
+require compat
 require dependencies
-require util
 require notify
 require main
 
 SCRIPTLIB_DESCRIPTION="Toggle the keyboard layout in use (dvorak-mod <-> abnt2)."
 
-togglekbd() (
-    set -e
 
-    local current_kbmap
-    current_kbmap=$(
-        setxkbmap -query |
-        grep layout |
-        cut -d ':' -f 2 |
-        sed -e 's/\s//g'
-    )
+function _use-setxkbmap() {
+    depend setxkbmap
 
-    local is_dvorak
-    is_dvorak="$(
-        bool [[ "${current_kbmap}" == 'br-dvorak-mod' ]]
-    )"
+    function _toggle-keyboard() {
+        local current_layout
+        current_layout=$(setxkbmap -query | awk '$1 == "layout:" { print $2 }') &&
 
-    local next_kbmap="$(choose "${is_dvorak}" 'br abnt2' 'br-dvorak-mod')"
+        case "${current_layout}" in
+            'br-dvorak-mod')
+                next_layout=( 'br' 'abnt2' ) ;;
+            *)
+                next_layout=( 'br-dvorak-mod' ) ;;
+        esac
 
-    setxkbmap ${next_kbmap}
+        setxkbmap "${next_layout[@]}"
+    }
+}
 
-    setupkeys
-)
 
-depend setxkbmap
-wrap-shortcut main togglekbd "$@"
+function _use-swaymsg() {
+    depend swaymsg
+
+    function _toggle-keyboard() {
+        swaymsg input "*" xkb_switch_layout next > /dev/null
+    }
+}
+
+
+x11-or-wayland \
+    _use-setxkbmap \
+    _use-swaymsg
+
+
+_togglekbd() {
+    _toggle-keyboard &&
+    pgrep udevmon > /dev/null || setupkeys
+}
+
+
+wrap-shortcut main _togglekbd "${@}"

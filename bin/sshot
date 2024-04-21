@@ -2,6 +2,8 @@
 
 source scriptlib-init
 
+require compat
+require clipboard
 require dependencies
 require util
 require notify
@@ -68,11 +70,11 @@ copy-to-clipboard() {
 
     if [[ "${file_uri}" == 1 ]]
     then
-        xclip -t 'text/uri-list' -selection clipboard <<< "file://${file}" &&
-        xclip -t 'text/uri-list' <<< "file://${file}"
+        set-clipboard-from-stdin 0 'text/uri-list' <<< "file://${file}" &&
+        set-clipboard-from-stdin 1 'text/uri-list' <<< "file://${file}"
     else
-        xclip -t image/png "${file}" -selection clipboard &&
-        xclip -t image/png "${file}"
+        cat "${file}" | set-clipboard-from-stdin 0 'image/png' &&
+        cat "${file}" | set-clipboard-from-stdin 1 'image/png'
     fi
 }
 
@@ -108,11 +110,69 @@ save-or-clip() {
 }
 
 
+function _use-maim() {
+    depend maim
+
+    function grab-screenshot() {
+        # Grab a screenshot on X with maim.
+        #
+        # Usage: sshot SELECT FILE
+        #
+        # Positional arguments:
+        #     SELECT   A 0/1 flag to either select a region or capture the whole
+        #                 screen.
+        #     FILE     Where to save the screenshot.
+
+        local select="${1}"
+        local file="${2}"
+
+        local select_flag
+        select_flag="$(choose "${select}" "-sB" "")"
+
+        maim -ou "${select_flag}" "${file}"
+    }
+}
+
+
+function _use-grim() {
+    depend slurp grim
+
+    function grab-screenshot() {
+        # Grab a screenshot on Wayland with slurp + grim.
+        #
+        # Usage: sshot SELECT FILE
+        #
+        # Positional arguments:
+        #     SELECT   A 0/1 flag to either select a region or capture the whole
+        #                 screen.
+        #     FILE     Where to save the screenshot.
+
+        local select="${1}"
+        local file="${2}"
+
+        local geometry_flags=()
+
+        [[ "${select}" == 1 ]] && {
+            local geometry
+            geometry="$(slurp)" || return 1
+            geometry_flags=( -g "${geometry}" )
+        }
+
+        grim "${geometry_flags[@]}" "${file}"
+    }
+}
+
+
+x11-or-wayland \
+    _use-maim \
+    _use-grim
+
+
 take-screenshot() {
     # Takes a screenshot of the whole screen or a region, and saves it or sends
     # it to the clipboard .
     #
-    # Usage: sshot SELECT CLIPBOARD
+    # Usage: take-screenshot SELECT CLIPBOARD FILE_URI
     #
     # Positional arguments:
     #     SELECT      A 0/1 flag to either select a region or capture the whole
@@ -124,12 +184,10 @@ take-screenshot() {
     local clipboard="${2}"
     local file_uri="${3}"
 
-    local select_flag="$(choose "${select}" "-sB" "")"
-
     local tmp
     tmp="$(mktemp --suffix=.png)" &&
 
-    maim -ou ${select_flag} "${tmp}" &&
+    grab-screenshot ${select} "${tmp}" &&
     save-or-clip "${clipboard}" "${file_uri}" "${tmp}" "${SSHOT_DIR}"
 }
 
@@ -168,5 +226,4 @@ _sshot() {
 }
 
 
-depend maim xclip
 wrap-shortcut main-with-opts scf select,clipboard,file-uri _sshot "$@"

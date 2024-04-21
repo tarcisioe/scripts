@@ -15,6 +15,11 @@ Setup details of the keyboard on X:
 _setupkeys() (
     set -e
 
+    pgrep udevmon > /dev/null && {
+        log "udevmon is running, esc should be setup through interception-tools."
+        return 0
+    } || true
+
     pkill xcape || true
 
     setxkbmap -option "ctrl:swapcaps"
