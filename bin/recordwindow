@@ -2,6 +2,8 @@
 
 source scriptlib-init
 
+require clipboard
+require compat
 require dependencies
 require notify
 require main
@@ -22,9 +24,7 @@ Optional arguments:
 
 
 try-to-stop-capture() {
-    kill $(<"${PIDFILE}") > /dev/null 2>&1 &&
-        echo "Done capturing." ||
-        log "Couldn't stop capture. Cleaning pidfile."
+    kill $(<"${PIDFILE}") > /dev/null 2>&1
 }
 
 
@@ -33,42 +33,124 @@ stop-capture-if-active() {
 
     [[ ! -f "${PIDFILE}" ]] && return 1
 
-    try-to-stop-capture &&
+    {
+        try-to-stop-capture &&
+            echo "Done capturing." ||
+            log "Couldn't stop capture. Cleaning pidfile."
+    } &&
+
     rm "${PIDFILE}" &&
 
-    xclip -sel c -t text/uri-list <<< "file://${OUTPUT}"
+    set-clipboard-from-stdin 0 'text/uri-list' <<< "file://${OUTPUT}"
+    set-clipboard-from-stdin 1 'text/uri-list' <<< "file://${OUTPUT}"
 }
 
 
-start-recording() (
-    # Starts capturing a region.
-    #
-    # Usage: start-record AUDIO X Y W H
-    #
-    # Positional arguments:
-    #     AUDIO     A 0/1 flag to record audio or not.
-    #     X Y H W   The x and y coordinates, height and width of a region of
-    #               the screen.
+function _use-ffmpeg() {
+    depend ffmpeg slop
 
-    set -e
+    function _record-region() (
+        # Starts capturing a given region with ffmpeg/x11grab.
+        #
+        # Usage: record-region AUDIO X Y W H
+        #
+        # Positional arguments:
+        #     AUDIO     A 0/1 flag to record audio or not.
+        #     X Y H W   The x and y coordinates, height and width of a region of
+        #               the screen.
 
-    local audio="${1}"
-    local x="${2}"
-    local y="${3}"
-    local w="${4}"
-    local h="${5}"
+        set -e
 
-    local audio_flag="$(choose "${audio}" "-f pulse -ac 2 -i default" "")"
+        local audio="${1}"
+        local x="${2}"
+        local y="${3}"
+        local w="${4}"
+        local h="${5}"
 
-    ffmpeg -y -video_size "$(($w-1))x$(($h-1))" \
-           -framerate 25 -f x11grab \
-           -i :0.0+"${x}","${y}" \
-           ${audio_flag} \
-           -vf 'scale=trunc(iw/2)*2:-2' \
-           -pix_fmt yuv420p \
-           ${OUTPUT} > /dev/null 2>&1 &
-    echo "${!}" >> "${PIDFILE}"
-)
+        local audio_flags=()
+
+        [[ "${audio}" == 1 ]] && {
+            audio_flags=( -f pulse -ac 2 -i default )
+        }
+
+        ffmpeg -y -video_size "$(($w-1))x$(($h-1))" \
+               -framerate 25 -f x11grab \
+               -i :0.0+"${x}","${y}" \
+               "${audio_flags[@]}" \
+               -vf 'scale=trunc(iw/2)*2:-2' \
+               -pix_fmt yuv420p \
+               ${OUTPUT} > /dev/null 2>&1 &
+        echo "${!}" >> "${PIDFILE}"
+    )
+
+    function start-recording() {
+        # Selects a region with slop and starts recording it.
+        #
+        # Usage: start-recording AUDIO
+        #
+        # Positional arguments:
+        #     AUDIO     A 0/1 flag to record audio or not.
+
+        local audio="${1}"
+
+        local x y w h g
+        local slop_output
+        slop_output="$(slop -f "%x %y %w %h")"
+        read -r x y w h g <<< "${slop_output}"
+
+        _record-region "${audio}" "${x}" "${y}" "${w}" "${h}"
+    }
+}
+
+
+function _use-wf-recorder() {
+    function _record-region() (
+        # Starts capturing a given region with wf-recorder.
+        #
+        # Usage: record-region AUDIO REGION
+        #
+        # Positional arguments:
+        #     AUDIO     A 0/1 flag to record audio or not.
+        #     REGION    The screen region to capture, in slurp's output format.
+
+        local audio="${1}"
+        local region="${2}"
+
+        local audio_flags=()
+
+        [[ "${audio}" == 1 ]] && {
+            audio_flags=( -a )
+        }
+
+        rm "${OUTPUT}"
+        wf-recorder "${audio_flags[@]}" \
+            -g "${region}" -x yuv420p \
+            -f "${OUTPUT}" > /dev/null 2>&1 &
+        echo "${!}" >> "${PIDFILE}"
+    )
+
+    function start-recording() (
+        # Selects a region with slurp and starts recording it.
+        #
+        # Usage: start-recording AUDIO
+        #
+        # Positional arguments:
+        #     AUDIO     A 0/1 flag to record audio or not.
+        set -e
+
+        local audio="${1}"
+
+        local region
+        region="$(slurp)"
+
+        _record-region "${audio}" "${region}"
+    )
+}
+
+
+x11-or-wayland \
+    _use-ffmpeg \
+    _use-wf-recorder
 
 
 start-or-stop-recording() (
@@ -85,12 +167,7 @@ start-or-stop-recording() (
 
     stop-capture-if-active && return
 
-    local x y w h g
-    local slop_output
-    slop_output="$(slop -f "%x %y %w %h")"
-    read -r x y w h g <<< "${slop_output}"
-
-    start-recording "${audio}" "${x}" "${y}" "${w}" "${h}"
+    start-recording "${audio}"
 )
 
 
@@ -116,5 +193,4 @@ _recordwindow() {
 }
 
 
-depend ffmpeg slop xclip
 wrap-shortcut main-with-opts "a" "audio" _recordwindow "$@"
