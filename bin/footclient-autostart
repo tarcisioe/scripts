@@ -1,0 +1,13 @@
+#!/bin/bash
+
+footclient -N "$@"
+
+if [[ "${?}" == 220 ]]
+then
+    foot --server > /dev/null 2>&1 & disown
+    for i in $(seq 5)
+    do
+        footclient -N "$@" && break
+        sleep 0.1
+    done
+fi

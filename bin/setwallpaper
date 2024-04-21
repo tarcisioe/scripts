@@ -1,0 +1,25 @@
+#!/bin/bash
+
+source scriptlib-init
+
+require main
+
+
+function get-outputs() {
+    swaymsg -t get_outputs | jq -r '.[].name'
+}
+
+
+function _setwallpaper() {
+    local wallpapers="${WALLPAPERDIR:-${HOME}/.wallpaper}"
+
+    get-outputs | \
+    while read -r output
+    do
+        swaymsg output "${output}" bg "${wallpapers}/outputs/${output}" fill
+    done
+}
+
+
+depend jq swaymsg swaybg
+main _setwallpaper
