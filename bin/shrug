@@ -12,4 +12,4 @@ function _shrug() {
 }
 
 
-wrap-shortcut main shrug "$@"
+wrap-shortcut main _shrug "$@"

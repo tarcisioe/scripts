@@ -12,4 +12,4 @@ function _lennyface() {
 }
 
 
-wrap-shortcut main lennyface "${@}"
+wrap-shortcut main _lennyface "${@}"
