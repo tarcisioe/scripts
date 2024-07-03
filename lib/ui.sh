@@ -5,6 +5,11 @@ escape() {
     # Add a terminal escape code before a printed string and a format reset to
     # the end.
 
+    is-a-shortcut && {
+        printf "${2}"
+        return
+    }
+
     printf '\e['"${1}"'m%s\e[0m' "$2"
 }
 

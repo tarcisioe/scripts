@@ -51,13 +51,5 @@ is-a-shortcut() {
     #
     # Usage: is-a-shortcut
 
-    local parent
-    parent="$(ps -p"${PPID}" -o comm=)"
-
-    case "$parent" in
-        systemd) return 0 ;;
-        i3) return 0 ;;
-    esac
-
-    return 1
+    [[ -n "${SCRIPTLIB_SHORTCUT:-}" ]]
 }
