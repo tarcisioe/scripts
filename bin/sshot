@@ -222,7 +222,7 @@ _sshot() {
         shift
     done
 
-    { [[ "${file_uri}" == 1 ]] && [[ "${clipboard}" == 0 ]] } &&
+    { [[ "${file_uri}" == 1 ]] && [[ "${clipboard}" == 0 ]]; } &&
         die "Option file-uri can only be used with clipboard."
 
     take-screenshot "${select}" "${clipboard}" "${file_uri}"
