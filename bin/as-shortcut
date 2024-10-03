@@ -1,0 +1,3 @@
+#!/bin/bash
+
+SCRIPTLIB_SHORTCUT=1 exec "$@"
