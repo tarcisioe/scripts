@@ -24,6 +24,7 @@ _setupkeys() (
 
     setxkbmap -option "ctrl:swapcaps"
     xmodmap -e "keycode 255 = Escape"
+    xmodmap -e "keycode 9 = apostrophe quotedbl apostrophe quotedbl ccedilla Ccedilla"
     xcape -e 'Control_L=Escape' -t 200
 )
 
