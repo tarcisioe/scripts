@@ -7,7 +7,8 @@ require notify
 require main
 
 SCRIPTLIB_DESCRIPTION="Toggle the keyboard layout in use (dvorak-mod <-> abnt2)."
-
+SCRIPTLIB_OPT_ARGS="\
+    -s/--setupkeys   Call setupkeys after toggling the layout (ignored if using udevmon)."
 
 function _use-setxkbmap() {
     depend setxkbmap
@@ -42,10 +43,46 @@ x11-or-wayland \
     _use-swaymsg
 
 
-_togglekbd() {
-    _toggle-keyboard &&
-    pgrep udevmon > /dev/null || setupkeys
+_has_kbd_daemon() {
+    {
+        pgrep udevmon ||
+        pgrep kanata
+    } > /dev/null
 }
 
 
-wrap-shortcut main _togglekbd "${@}"
+_run_setupkeys() {
+    _has_kbd_daemon && {
+        print-info "Keyboard setup daemon running. Ignoring setupkeys."
+        return 0
+    }
+
+    setupkeys
+}
+
+
+_togglekbd() {
+    set -e
+
+    local run_setupkeys="0"
+
+    while true; do
+        case "${1:-}" in
+            -s|--setupkeys)
+                run_setupkeys="1"
+                shift
+                ;;
+            --) shift ;&
+            *) break ;;
+        esac
+        shift
+    done
+
+    _toggle-keyboard
+    [[ "${run_setupkeys}" == "1" ]] && _run_setupkeys
+
+    return 0
+}
+
+
+wrap-shortcut main-with-opts "s" "setupkeys" _togglekbd "${@}"
